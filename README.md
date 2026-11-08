@@ -1,6 +1,6 @@
 # HyperQwen on my RTX 3090: what actually happened
 
-I read the claim that [HyperQwen](https://github.com/syv-ai/HyperQwen) runs Qwen3.8-27B on a single RTX 3090 at around **127 tokens per second** for normal chat, and **381 tokens per second** when the answer copies text from the prompt. I wanted to see it for myself. So I set it up on my son's PC, ran my own tests, and wrote down everything — including the parts that went wrong.
+I read the claim that [HyperQwen](https://github.com/syv-ai/HyperQwen) runs Qwen3.8-27B on a single RTX 3090 at around **127 tokens per second** for normal chat, and **381 tokens per second** when the answer copies text from the prompt. I wanted to see it for myself. So I set it up on a PC at home, ran my own tests, and wrote down everything — including the parts that went wrong.
 
 Short version: **it works, and the speed trick is real: about 2.5–3× faster than the same model without it, and over 10× when copying text. But my card never got anywhere near HyperQwen's published numbers.** My used RTX 3090 is being held back by its driver at about 187 W (half of its 370 W limit), and I have not fixed that yet. So read my numbers as "a capped card", not as a verdict on HyperQwen.
 
