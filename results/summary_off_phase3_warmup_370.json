@@ -1,0 +1,43 @@
+{
+  "block": "off_phase3_warmup_370",
+  "warmup": true,
+  "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite configured 370 W; power limit unchanged.",
+  "start_temperature_c": 49.0,
+  "request_count": 1,
+  "telemetry": {
+    "median_power_w": 186.93,
+    "max_temperature_c": 56.0,
+    "median_temperature_c": 55.0,
+    "median_sm_mhz": 405.0,
+    "median_memory_mhz": 9501.0
+  },
+  "groups": {
+    "02_portrait.jpg/off": {
+      "n": 1,
+      "decode_tok_s": {
+        "median": 19.61168097304247,
+        "min": 19.61168097304247,
+        "max": 19.61168097304247
+      },
+      "ttft_s": {
+        "median": 2.4551184579977416,
+        "min": 2.4551184579977416,
+        "max": 2.4551184579977416
+      },
+      "prompt_tokens": [
+        1193
+      ],
+      "completion_tokens": [
+        638
+      ],
+      "finish_reasons": [
+        "stop"
+      ],
+      "image_dimensions": "1080x1081"
+    }
+  },
+  "off_repeat_1_answers": {
+    "02_portrait.jpg": "This is a close-up, chest-up portrait of a young woman looking directly at the viewer with a thoughtful or contemplative expression.\n\n**Appearance & Features:**\n*   **Face:** She has an oval face shape with smooth, fair skin. Her eyebrows are well-defined and arched.\n*   **Eyes:** Her most striking feature is her large, bright blue-green (hazel) eyes. They are wide open and looking slightly upwards and to her right (viewer's left), giving her a pensive or curious look.\n*   **Hair:** Her dark brown hair is pulled back tightly under a head covering, with only a small section visible at her hairline.\n\n**Clothing & Accessories:**\n*   **Headscarf:** She is wearing a light-colored, possibly white or very pale lavender, thin fabric headscarf. It’s tied smoothly around her head, covering her hair and framing her face, with the ends draped over her left shoulder.\n*   **Top:** She is wearing a dark navy blue t-shirt or top featuring a prominent white floral or leafy pattern across the chest and shoulders.\n*   **Earrings:** She is wearing a pair of medium-sized, thin gold hoop earrings that stand out against her skin and the light-colored scarf.\n\n**Makeup:**\n*   **Eyes:** Her eye makeup is bold and defined. She wears black winged eyeliner that extends sharply from the outer corner of each eye, accentuating her gaze. Her eyelashes appear long and dark, likely enhanced with mascara.\n*   **Cheeks:** A soft peach or coral blush is applied to her cheeks, adding a healthy glow.\n*   **Lips:** Her lips are full and coated in a matte, warm terracotta or burnt orange lipstick.\n\n**Pose & Expression:**\n*   **Pose:** She is positioned slightly off-center, with her body angled towards the viewer. Her right hand is raised, with the index finger gently touching her chin and lower lip area – a classic pose suggesting thoughtfulness, pondering, or playful introspection.\n*   **Expression:** Her expression is calm and engaged. The direct gaze into the camera, combined with the upward tilt of her eyes and the finger on her chin, conveys intelligence, curiosity, or deep thought. It feels intimate and inviting.\n\n**Background:**\n*   The background is simple and uncluttered, consisting of two flat planes of muted, neutral color. To the left is a darker grey-brown wall or surface, and to the right is a lighter, warmer beige or taupe wall or surface. This minimalist backdrop ensures all attention remains on the subject.\n\n**Lighting:**\n*   The lighting is soft and even, illuminating her face clearly without harsh shadows. It appears to be natural light or a diffused studio light source positioned in front of her, highlighting her features and the texture of her clothing and scarf.\n\nOverall, the image presents a modern, stylish, and introspective portrait, emphasizing the subject's expressive eyes and thoughtful demeanor against a clean, neutral background."
+  },
+  "xhigh_reasoning_chars": {}
+}

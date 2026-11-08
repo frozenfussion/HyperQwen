@@ -1,0 +1,29 @@
+{
+  "block": "B_copy_warmup_370",
+  "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite a 370 W configured limit. All 250 W blocks skipped by user decision; power limit unchanged.",
+  "start_temperature_c": 56.0,
+  "request_count": 1,
+  "warmup": true,
+  "telemetry": {
+    "median_power_w": 191.2,
+    "max_temperature_c": 58.0,
+    "median_temperature_c": 57.0,
+    "median_sm_mhz": 645.0,
+    "median_memory_mhz": 9501.0
+  },
+  "groups": {
+    "2b-copy/off": {
+      "n": 1,
+      "decode_tok_s": {
+        "median": 169.32619753577475,
+        "min": 169.32619753577475,
+        "max": 169.32619753577475
+      },
+      "ttft_s": {
+        "median": 0.9334840230003465,
+        "min": 0.9334840230003465,
+        "max": 0.9334840230003465
+      }
+    }
+  }
+}

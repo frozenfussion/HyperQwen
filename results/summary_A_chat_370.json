@@ -1,0 +1,68 @@
+{
+  "block": "A_chat_370",
+  "start_temperature_c": 42.0,
+  "request_count": 40,
+  "warmup": false,
+  "telemetry": {
+    "median_power_w": 186.195,
+    "max_temperature_c": 60.0,
+    "median_temperature_c": 59.0,
+    "median_sm_mhz": 405.0,
+    "median_memory_mhz": 9501.0
+  },
+  "groups": {
+    "2a-chat/off": {
+      "n": 10,
+      "decode_tok_s": {
+        "median": 50.54642686418321,
+        "min": 25.12439132632535,
+        "max": 98.05410074452617
+      },
+      "ttft_s": {
+        "median": 0.1631642739957897,
+        "min": 0.134069243009435,
+        "max": 0.18987574998755008
+      }
+    },
+    "2a-chat/low": {
+      "n": 10,
+      "decode_tok_s": {
+        "median": 53.576815843694646,
+        "min": 42.66073631199148,
+        "max": 78.74249890885301
+      },
+      "ttft_s": {
+        "median": 0.169451226000092,
+        "min": 0.08018915000138804,
+        "max": 0.4519975580042228
+      }
+    },
+    "2a-chat/medium": {
+      "n": 10,
+      "decode_tok_s": {
+        "median": 47.572326973575784,
+        "min": 40.3325074274624,
+        "max": 82.21159689622753
+      },
+      "ttft_s": {
+        "median": 0.161668765504146,
+        "min": 0.13970898900879547,
+        "max": 0.3430694319831673
+      }
+    },
+    "2a-chat/xhigh": {
+      "n": 10,
+      "decode_tok_s": {
+        "median": 52.02981651401733,
+        "min": 44.000364607266306,
+        "max": 64.33774952101902
+      },
+      "ttft_s": {
+        "median": 0.24416823849605862,
+        "min": 0.2375977519841399,
+        "max": 0.6534844129928388
+      }
+    }
+  },
+  "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite a 370 W configured limit. All 250 W blocks skipped by user decision; power limit unchanged."
+}

@@ -1,0 +1,396 @@
+{
+  "phase": 3,
+  "created_ts": "2026-11-08T14:02:23.438+08:00",
+  "startup": {
+    "ready_ts": "2026-11-08T13:50:39.446+08:00",
+    "startup_elapsed_s": 327.663927227004,
+    "models": {
+      "object": "list",
+      "data": [
+        {
+          "id": "qwen3.8-27b",
+          "object": "model",
+          "created": 1794117039,
+          "owned_by": "vllm",
+          "root": "/app/models/Qwen3.8-27B-W4A16-AutoRound-fast",
+          "parent": null,
+          "max_model_len": 65536,
+          "permission": [
+            {
+              "id": "modelperm-91b158d60e1aff9e",
+              "object": "model_permission",
+              "created": 1794117039,
+              "allow_create_engine": false,
+              "allow_sampling": true,
+              "allow_logprobs": true,
+              "allow_search_indices": false,
+              "allow_view": true,
+              "allow_fine_tuning": false,
+              "organization": "*",
+              "group": null,
+              "is_blocking": false
+            }
+          ]
+        }
+      ]
+    },
+    "gpu_memory_csv": "memory.used [MiB], memory.free [MiB]\n22865 MiB, 1255 MiB\n",
+    "container_status": "running 0 healthy",
+    "vision_enabled": true,
+    "vision_offload": "default unchanged",
+    "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite configured 370 W; power limit unchanged."
+  },
+  "measured": {
+    "block": "phase3_images_370",
+    "warmup": false,
+    "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite configured 370 W; power limit unchanged.",
+    "start_temperature_c": 49.0,
+    "request_count": 16,
+    "telemetry": {
+      "median_power_w": 186.92,
+      "max_temperature_c": 60.0,
+      "median_temperature_c": 59.0,
+      "median_sm_mhz": 405.0,
+      "median_memory_mhz": 9501.0
+    },
+    "groups": {
+      "01_selfie_gates.jpg/off": {
+        "n": 2,
+        "decode_tok_s": {
+          "median": 44.98765104059906,
+          "min": 44.961130262573164,
+          "max": 45.014171818624966
+        },
+        "ttft_s": {
+          "median": 2.000423987497925,
+          "min": 1.9262657149956794,
+          "max": 2.07458226000017
+        },
+        "prompt_tokens": [
+          1202,
+          1202
+        ],
+        "completion_tokens": [
+          879,
+          753
+        ],
+        "finish_reasons": [
+          "stop",
+          "stop"
+        ],
+        "image_dimensions": "1080x1080"
+      },
+      "01_selfie_gates.jpg/xhigh": {
+        "n": 2,
+        "decode_tok_s": {
+          "median": 41.65910177341642,
+          "min": 40.551140097918754,
+          "max": 42.76706344891408
+        },
+        "ttft_s": {
+          "median": 1.7797766889998456,
+          "min": 1.7264066130010178,
+          "max": 1.8331467649986735
+        },
+        "prompt_tokens": [
+          1242,
+          1242
+        ],
+        "completion_tokens": [
+          1971,
+          2469
+        ],
+        "finish_reasons": [
+          "stop",
+          "stop"
+        ],
+        "image_dimensions": "1080x1080"
+      },
+      "02_portrait.jpg/off": {
+        "n": 2,
+        "decode_tok_s": {
+          "median": 44.44840191970523,
+          "min": 43.35722877010885,
+          "max": 45.53957506930162
+        },
+        "ttft_s": {
+          "median": 1.7162430085008964,
+          "min": 1.38289464799891,
+          "max": 2.049591369002883
+        },
+        "prompt_tokens": [
+          1193,
+          1193
+        ],
+        "completion_tokens": [
+          739,
+          752
+        ],
+        "finish_reasons": [
+          "stop",
+          "stop"
+        ],
+        "image_dimensions": "1080x1081"
+      },
+      "02_portrait.jpg/xhigh": {
+        "n": 2,
+        "decode_tok_s": {
+          "median": 41.84812814573087,
+          "min": 41.621475821890485,
+          "max": 42.07478046957125
+        },
+        "ttft_s": {
+          "median": 1.813052488498215,
+          "min": 1.7827664469950832,
+          "max": 1.843338530001347
+        },
+        "prompt_tokens": [
+          1233,
+          1233
+        ],
+        "completion_tokens": [
+          1410,
+          1201
+        ],
+        "finish_reasons": [
+          "stop",
+          "stop"
+        ],
+        "image_dimensions": "1080x1081"
+      },
+      "03_id_card.jpg/off": {
+        "n": 2,
+        "decode_tok_s": {
+          "median": 48.36542889682248,
+          "min": 40.625159650325884,
+          "max": 56.105698143319074
+        },
+        "ttft_s": {
+          "median": 0.47350094549983623,
+          "min": 0.39493552500061924,
+          "max": 0.5520663659990532
+        },
+        "prompt_tokens": [
+          175,
+          175
+        ],
+        "completion_tokens": [
+          305,
+          43
+        ],
+        "finish_reasons": [
+          "stop",
+          "stop"
+        ],
+        "image_dimensions": "432x277"
+      },
+      "03_id_card.jpg/xhigh": {
+        "n": 2,
+        "decode_tok_s": {
+          "median": 50.445806863317415,
+          "min": 48.27229422656609,
+          "max": 52.61931950006874
+        },
+        "ttft_s": {
+          "median": 0.41697666500112973,
+          "min": 0.3984088459983468,
+          "max": 0.43554448400391266
+        },
+        "prompt_tokens": [
+          215,
+          215
+        ],
+        "completion_tokens": [
+          4096,
+          2864
+        ],
+        "finish_reasons": [
+          "length",
+          "stop"
+        ],
+        "image_dimensions": "432x277"
+      },
+      "04_worksheet.jpg/off": {
+        "n": 2,
+        "decode_tok_s": {
+          "median": 60.97895359162226,
+          "min": 60.68085175558702,
+          "max": 61.277055427657494
+        },
+        "ttft_s": {
+          "median": 4.101795539500017,
+          "min": 3.6845505539968144,
+          "max": 4.51904052500322
+        },
+        "prompt_tokens": [
+          2079,
+          2079
+        ],
+        "completion_tokens": [
+          1261,
+          1315
+        ],
+        "finish_reasons": [
+          "stop",
+          "stop"
+        ],
+        "image_dimensions": "1542x2576"
+      },
+      "04_worksheet.jpg/xhigh": {
+        "n": 2,
+        "decode_tok_s": {
+          "median": 44.412826598376725,
+          "min": 41.1676233526135,
+          "max": 47.65802984413995
+        },
+        "ttft_s": {
+          "median": 3.252040693001618,
+          "min": 3.236781163002888,
+          "max": 3.2673002230003476
+        },
+        "prompt_tokens": [
+          2119,
+          2119
+        ],
+        "completion_tokens": [
+          4096,
+          4096
+        ],
+        "finish_reasons": [
+          "length",
+          "length"
+        ],
+        "image_dimensions": "1542x2576"
+      }
+    },
+    "off_repeat_1_answers": {
+      "01_selfie_gates.jpg": "This is a close-up, casual selfie of two young people — a man and a woman — standing outdoors in front of an ornate, historic gate. The photo has a warm, personal feel, likely taken during a trip or special outing.\n\n**The People:**\n\n- **The Woman (left):** She has light brown hair with darker roots, blue eyes, and subtle makeup including winged eyeliner and rosy cheeks. She’s wearing a dark blue knitted beanie and a beige jacket with a large, fluffy black fur collar that frames her face. Her expression is calm and slightly smiling, with one hand gently touching her cheek or ear. She appears to be looking directly at the camera with a soft gaze.\n\n- **The Man (right):** He has short, dark, styled hair, a neatly trimmed beard and mustache, and is wearing black-framed glasses with thin blue temples. He’s smiling broadly, showing his teeth, and seems happy and engaged. He’s dressed in a beige hooded jacket over a dark patterned scarf (possibly camouflage or abstract design), and he has a black backpack strap visible across his shoulder. His posture suggests he’s holding the camera for the selfie.\n\n**Clothing & Accessories:**\n\nBoth are dressed for cool weather — layered jackets, a scarf, and a beanie — suggesting the photo was taken in autumn or winter. Their attire is modern and stylish but practical for sightseeing. The man’s glasses and backpack suggest he might be a student or traveler.\n\n**Setting & Background:**\n\nThey are standing directly in front of a grand, wrought-iron gate featuring intricate gold leaf decoration. The centerpiece of the gate is a large, gilded royal coat of arms: a crowned shield flanked by two lion-like figures (possibly lions or unicorns) on a laurel wreath, topped with a crown and surrounded by radiating sunburst motifs. The gate itself is black iron with circular patterns and golden finials.\n\nBehind the gate, you can see part of a stately building with classical architecture — white stone facade, tall windows, and ornate detailing. This is clearly a royal or official residence.\n\nThere’s also a faint figure of another person in the background, partially obscured behind the man’s head, suggesting they’re in a public area with other visitors.\n\n**Location & Reasoning:**\n\nThis photo was almost certainly taken in **Paris, France**, specifically in front of the **Hôtel des Invalides (Les Invalides)**, near the **Arc de Triomphe** and **Eiffel Tower** area.\n\n**Why?**\n\n1. **The Gate’s Design:** The ornate golden crest with the crown, lions, and sunburst is characteristic of French royal/imperial architecture. The specific emblem — a crowned shield with lions and a sunburst — matches the imperial insignia used during the Napoleonic era and still displayed at Les Invalides, which houses Napoleon’s tomb.\n\n2. **Architectural Style:** The white stone building behind the gate with its classical columns and window placement aligns with the 17th-century French Baroque architecture of the Hôtel des Invalides complex.\n\n3. **Geographic Context:** Les Invalides is located in central Paris, near the Seine River, and is a popular tourist destination. The presence of tourists (including the couple in the photo) and the style of dress fit typical winter/autumn Parisian tourism.\n\n4. **Cultural Clue:** The combination of European-style architecture, the specific heraldry, and the urban setting strongly point to Paris rather than another European capital (like Vienna or Berlin), which have different royal emblems and architectural styles.\n\n**Notable Details:**\n\n- The golden crest is highly detailed and symbolic — it represents French sovereignty and imperial legacy.\n- The contrast between the modern, casual clothing of the subjects and the opulent, historical backdrop creates a compelling juxtaposition of present-day travelers against centuries-old grandeur.\n- The lighting is soft and diffused, suggesting an overcast day — common in Paris — which enhances the colors and textures without harsh shadows.\n\nIn summary, this is a joyful, intimate travel moment captured in front of one of Paris’s most iconic landmarks — Les Invalides — showcasing both personal connection and cultural history.",
+      "02_portrait.jpg": "This is a close-up, front-facing portrait of a young woman with a thoughtful or pensive expression. The image is well-lit with soft, even lighting that highlights her facial features.\n\n**Person’s Appearance:**\n- She has fair skin with a warm, peachy undertone.\n- Her eyes are large and striking, with a light green or hazel iris. They are wide open and directed slightly upward and to her right (viewer’s left), giving her an expressive, contemplative look.\n- Her eyebrows are well-groomed, arched, and filled in with a dark brown color that matches her hair.\n- Her nose is straight and proportionate.\n- Her lips are full and slightly parted.\n- Her hair is dark brown, parted down the middle, and pulled back under the headscarf. Only a small amount of hair is visible at the hairline.\n\n**Clothing:**\n- She is wearing a navy blue top with a white floral pattern. The flowers appear to be stylized blossoms with stems and leaves, covering the visible portion of the garment. The neckline is a simple crew neck.\n- Over her head, she wears a white headscarf (hijab or shawl-style scarf) that is neatly wrapped around her head, framing her face and draping over her shoulders. The fabric appears lightweight and slightly sheer, with gentle folds visible on the right side (her left).\n\n**Accessories:**\n- She is wearing a pair of medium-sized, thin gold hoop earrings. They sit just below her earlobes and catch the light subtly.\n\n**Makeup:**\n- Her makeup is polished and enhances her natural features:\n  - **Eyes:** She has black winged eyeliner on both eyes, sharply defined and extending outward from the outer corners. Her lashes appear curled and possibly coated with mascara. Her eyebrows are neatly shaped and filled in.\n  - **Cheeks:** A soft, warm blush is applied to the apples of her cheeks, adding a healthy flush.\n  - **Lips:** Her lips are coated in a matte, terracotta or burnt orange lipstick, applied evenly and precisely.\n  - **Base:** Her complexion looks smooth and even, suggesting foundation or tinted moisturizer has been used. There may be a subtle highlighter on the bridge of her nose and cheekbones.\n\n**Pose & Expression:**\n- Her head is tilted very slightly to her right.\n- Her gaze is directed upward and to her right, away from the camera, conveying a sense of thoughtfulness, daydreaming, or quiet contemplation.\n- Her right hand is raised, with the index finger gently touching her chin just below her lower lip. This gesture reinforces the thoughtful mood.\n- Her facial expression is calm and introspective — not smiling, but also not sad; rather, it suggests she is lost in thought or reflecting on something.\n\n**Background:**\n- The background is simple and unobtrusive: a plain, neutral-toned wall in a muted taupe or grayish-brown color.\n- The wall appears smooth and evenly lit, with no discernible patterns, objects, or distractions.\n- The corner of the wall is faintly visible on the left side of the frame, suggesting she is standing near a corner or against a flat surface.\n\nOverall, the photograph has a clean, modern aesthetic with a focus on the subject’s face and expression. The composition is tight, emphasizing her eyes, makeup, and the subtle gesture of her hand, creating an intimate and reflective mood.",
+      "03_id_card.jpg": "Based on the text and visual elements, here is my analysis:\n\n**Document Type:**\n\nThis is a **Malaysian MyKad** (Kad Pengenalan Malaysia), which is the national identity card for Malaysian citizens. The card features the national flag, the \"MyKad\" logo, a microchip, a photograph of the holder (in this case, actor Rowan Atkinson), their name, address, and nationality (WARGANEGARA KHNUSA, which means \"Indonesian Citizen\"). The combination of a Malaysian ID card with a photo of Rowan Atkinson and an Indonesian nationality indicates this is a **satirical or joke card**, not a real government-issued document.\n\n**The Long Number:**\n\nThe number `550106-12-5821` follows the standard format of a Malaysian National Registration Identity Card (MyKad) number:\n*   **55**: The year of birth (1955).\n*   **01**: The month of birth (January).\n*   **06**: The day of birth (6th).\n*   **12**: The state of registration (Penang).\n*   **5821**: The unique serial number.\n\nTherefore, if this were a real card, the number would encode that the person was born on January 6, 1955, and is registered in the state of Penang.",
+      "04_worksheet.jpg": "Based on the image provided, here are the printed sums, their correct answers, and a description of the handwritten and stuck-on elements.\n\n**Note:** Some of the printed sums are partially obscured by stickers or drawings. I have listed the ones that are clearly readable.\n\n**Printed Sums and Correct Answers:**\n\n**Top Left Box (partially obscured):**\n*   $8 - 3 = 5$\n*   $2 = ...$ (Incomplete, likely part of a larger sum like $7-2=5$ or $8-2=6$)\n*   $2 = ...$ (Incomplete)\n*   $1 = ...$ (Incomplete)\n*   $9 - 8 = 1$\n*   $3 - 2 = 1$\n*   $8 - ...$ (Obstructed by sticker)\n*   $4 - 1 = 3$\n*   $8 - 7 = 1$\n\n**Top Middle Box:**\n*   $8 - 3 = 5$\n*   $9 - 3 = 6$\n*   $8 - 5 = 3$\n*   $3 - 1 = 2$\n*   $8 - 2 = 6$\n*   $2 - 1 = 1$\n*   $5 - 3 = 2$\n*   $7 - 5 = 2$\n\n**Top Right Box:**\n*   $8 - 4 = 4$\n*   $7 - 4 = 3$\n*   $9 - 3 = 6$\n*   $9 - 1 = 8$\n*   $7 - 5 = 2$\n*   $9 - 7 = 2$\n*   $8 - 6 = 2$\n*   $4 - 3 = 1$\n\n**Middle Left Box (partially obscured):**\n*   $9 - 1 = 8$\n*   $9 - ...$ (Obstructed by sticker)\n*   $...5 = ...$ (Obstructed by sticker)\n*   $- 1 = ...$ (Incomplete)\n*   $...1 = ...$ (Incomplete)\n*   $... = ...$ (Incomplete)\n*   $3 = ...$ (Incomplete)\n\n**Middle Center Box:**\n*   $3 - 1 = 2$\n*   $6 - 5 = 1$\n*   $4 - 1 = 3$\n*   $6 - 1 = 5$\n*   $9 - 7 = 2$\n\n**Middle Right Box:**\n*   $2 - 1 = 1$\n*   $...3 = ...$ (Obstructed by sticker)\n*   $... = ...$ (Obstructed by sticker)\n*   $6 - 3 = 3$\n\n**Bottom Left Box:**\n*   $9 - 1 = 8$\n*   $4 - 2 = 2$\n*   $7 - 3 = 4$\n*   $9 - 4 = 5$\n*   $9 - 3 = 6$\n\n**Bottom Center Box:**\n*   $7 - 5 = 2$\n*   $4 - 1 = 3$\n*   $9 - 7 = 2$\n*   $9 - 1 = 8$\n*   $9 - 4 = 5$\n\n**Bottom Right Box:**\n*   $9 - 8 = 1$\n*   $9 - 4 = 5$\n*   $7 - 3 = 4$\n*   $2 - 1 = 1$\n*   $9 - 8 = 1$\n*   $9 - 8 = 1$\n*   $7 - 4 = 3$\n*   $8 - 7 = 1$\n*   $9 - 4 = 5$\n*   $8 - ...$ (Incomplete)\n\n---\n\n**Handwritten, Drawn, and Stuck-on Elements:**\n\n*   **Handwritten Answers:** The child has filled in the answers to the sums using a blue/purple pen and possibly a pencil (some answers look like pencil, e.g., the '5' in $9-4=5$ at the bottom left). Many answers are crossed out and corrected with blue/purple pen.\n*   **Grading Marks:** There are numerous blue/purple checkmarks (✓) and crosses (✗) indicating correct and incorrect answers. Some sums have a blue circle drawn around the correct answer, while others have a cross.\n*   **Stickers:** Several colorful stickers are stuck onto the worksheet:\n    *   A sticker of a child with dark hair and a green shirt near the top left.\n    *   A sticker of a baby sleeping in a blue hooded outfit near the middle left.\n    *   A sticker of a child sleeping next to a white cat near the middle right.\n    *   A small, partially visible sticker on the far right edge.\n*   **Drawings/Grading Stamps:**\n    *   A red, scribbled drawing or stamp, possibly a heart or flower shape, is located in the center of the worksheet, over the middle center and middle right boxes.\n    *   A blue, scribbled drawing, possibly a flower or sun, is located near the bottom left box, over the sums $9-4=5$ and $9-3=6$.\n*   **Scribbles:** There are various blue/purple scribbles and lines drawn across the worksheet, likely for grading or decoration. Some green scribbles are also visible on the far left edge."
+    },
+    "xhigh_reasoning_chars": {
+      "01_selfie_gates.jpg": [
+        {
+          "repeat": 1,
+          "chars": 5532
+        },
+        {
+          "repeat": 2,
+          "chars": 6140
+        }
+      ],
+      "02_portrait.jpg": [
+        {
+          "repeat": 1,
+          "chars": 4133
+        },
+        {
+          "repeat": 2,
+          "chars": 2703
+        }
+      ],
+      "03_id_card.jpg": [
+        {
+          "repeat": 1,
+          "chars": 14561
+        },
+        {
+          "repeat": 2,
+          "chars": 8176
+        }
+      ],
+      "04_worksheet.jpg": [
+        {
+          "repeat": 1,
+          "chars": 13341
+        },
+        {
+          "repeat": 2,
+          "chars": 12035
+        }
+      ]
+    }
+  },
+  "warmup": {
+    "block": "phase3_warmup_370",
+    "warmup": true,
+    "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite configured 370 W; power limit unchanged.",
+    "start_temperature_c": 48.0,
+    "request_count": 1,
+    "telemetry": {
+      "median_power_w": 187.93,
+      "max_temperature_c": 54.0,
+      "median_temperature_c": 53.0,
+      "median_sm_mhz": 465.0,
+      "median_memory_mhz": 9501.0
+    },
+    "groups": {
+      "02_portrait.jpg/off": {
+        "n": 1,
+        "decode_tok_s": {
+          "median": 49.04123481969766,
+          "min": 49.04123481969766,
+          "max": 49.04123481969766
+        },
+        "ttft_s": {
+          "median": 2.2529298180015758,
+          "min": 2.2529298180015758,
+          "max": 2.2529298180015758
+        },
+        "prompt_tokens": [
+          1193
+        ],
+        "completion_tokens": [
+          706
+        ],
+        "finish_reasons": [
+          "stop"
+        ],
+        "image_dimensions": "1080x1081"
+      }
+    },
+    "off_repeat_1_answers": {
+      "02_portrait.jpg": "This is a close-up, head-and-shoulders portrait of a young woman with a thoughtful and slightly playful expression. Here’s a detailed breakdown:\n\n**Person's Appearance:**\n- She has fair to medium-toned skin with a warm, rosy blush on her cheeks.\n- Her eyes are large, light blue-green (hazel or grey-green), and wide open, gazing upward and to her left (viewer’s right).\n- Her eyebrows are well-groomed, arched, and dark brown, framing her eyes.\n- Her nose is straight and proportionate.\n- Her lips are full and slightly parted, showing a hint of teeth.\n\n**Clothing:**\n- She is wearing a navy blue top with a white floral pattern — the flowers appear stylized, possibly hibiscus or similar tropical blooms, with visible stems and leaves.\n- The neckline is round and simple.\n- Over her head, she wears a white headscarf or hijab-style wrap that covers her hair completely, tied neatly at the back with a small bow or knot visible on the right side of her neck. The fabric appears soft and slightly sheer.\n\n**Accessories:**\n- She is wearing large, thin, gold-colored hoop earrings that rest just below her earlobes.\n- No other visible jewelry or accessories.\n\n**Makeup:**\n- Her makeup is polished and eye-catching:\n  - Eyeliner: Sharp, black winged eyeliner extending outward from the outer corners of her eyes, accentuating their shape.\n  - Eyeshadow: Subtle neutral tones — perhaps a light beige or taupe — enhancing the lid without being bold.\n  - Mascara: Lashes are coated but not overly dramatic.\n  - Blush: A soft peachy-pink blush applied high on the cheekbones for a fresh, radiant glow.\n  - Lipstick: A matte or satin-finish coral-orange lipstick, precisely applied and defining her lip shape.\n  - Skin: Flawless base with a natural, dewy finish; no visible freckles or blemishes.\n\n**Pose & Expression:**\n- Her head is tilted slightly to her right (viewer’s left).\n- She is looking up and to the side, not directly at the camera — giving the impression of contemplation, curiosity, or playful daydreaming.\n- Her right hand is raised, with the index finger gently touching her chin near the corner of her mouth — a classic “thinking” or “hmm?” gesture.\n- Her expression is engaging and subtly mischievous — eyebrows slightly raised, eyes wide, lips relaxed but defined.\n\n**Background:**\n- Simple and unobtrusive: a plain, muted gray wall with a subtle vertical shadow line on the left side, suggesting an interior corner or paneling.\n- Lighting is soft and even, likely from a frontal source (like a ring light or window), illuminating her face evenly without harsh shadows.\n- The overall composition is clean and focused entirely on her face and upper torso.\n\n**Overall Impression:**\nThe photo feels candid yet styled — like a social media selfie or influencer-style shot. It conveys confidence, intelligence, and charm through her gaze, pose, and carefully chosen styling. The contrast between the vibrant coral lips, gold hoops, and white scarf against the navy top creates a visually balanced and modern aesthetic."
+    },
+    "xhigh_reasoning_chars": {}
+  },
+  "failed_requests": [],
+  "length_limited_requests": [
+    {
+      "image": "03_id_card.jpg",
+      "mode": "xhigh",
+      "repeat": 1,
+      "answer_chars": 167,
+      "reasoning_chars": 14561
+    },
+    {
+      "image": "04_worksheet.jpg",
+      "mode": "xhigh",
+      "repeat": 1,
+      "answer_chars": 0,
+      "reasoning_chars": 13341
+    },
+    {
+      "image": "04_worksheet.jpg",
+      "mode": "xhigh",
+      "repeat": 2,
+      "answer_chars": 0,
+      "reasoning_chars": 12035
+    }
+  ],
+  "vision_left_enabled": true,
+  "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite configured 370 W; power limit unchanged.",
+  "result_files": [
+    "results/phase3_startup.json",
+    "results/requests_phase3_warmup_370.jsonl",
+    "results/summary_phase3_warmup_370.json",
+    "results/telemetry_phase3_warmup_370.csv",
+    "results/telemetry_phase3_warmup_370.stderr",
+    "results/requests_phase3_images_370.jsonl",
+    "results/summary_phase3_images_370.json",
+    "results/telemetry_phase3_images_370.csv",
+    "results/telemetry_phase3_images_370.stderr",
+    "results/report_phase3.json"
+  ]
+}

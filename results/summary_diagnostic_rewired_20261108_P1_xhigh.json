@@ -1,0 +1,79 @@
+{
+  "request": {
+    "start_ts": "2026-11-08T12:56:00.686+08:00",
+    "first_token_ts": "2026-11-08T12:56:00.956+08:00",
+    "end_ts": "2026-11-08T12:56:06.653+08:00",
+    "test": "diagnostic-rewired",
+    "mode": "xhigh",
+    "power_limit_w": 370.0,
+    "prompt_id": "P1",
+    "repeat": 1,
+    "warmup": false,
+    "block": "diagnostic_rewired_20261108_P1_xhigh",
+    "ttft_s": 0.26964491700346116,
+    "decode_tok_s": 54.76023818642888,
+    "prompt_tokens": 66,
+    "completion_tokens": 313,
+    "reasoning_chars": 428,
+    "content_chars": 938,
+    "finish_reason": "stop",
+    "max_tokens": 2048,
+    "chat_template_kwargs": {
+      "enable_thinking": true,
+      "reasoning_effort": "xhigh"
+    },
+    "temperature": null,
+    "status": "ok"
+  },
+  "captures": [
+    {
+      "capture": 1,
+      "timestamp": "2026-11-08T12:56:00.956+08:00",
+      "clocks": {
+        "Graphics": "570 MHz",
+        "SM": "570 MHz",
+        "Memory": "9501 MHz",
+        "Video": "1380 MHz"
+      },
+      "active_clocks_event_reasons": [
+        "Idle"
+      ],
+      "power_query": "timestamp, power.draw [W], power.limit [W]\n2026/11/08 12:56:01.016, 74.27 W, 370.00 W\n",
+      "request_finished_by_capture_end": false,
+      "path": "results/diagnostic_rewired_20261108_P1_xhigh_gpu_1.txt"
+    },
+    {
+      "capture": 2,
+      "timestamp": "2026-11-08T12:56:02.956+08:00",
+      "clocks": {
+        "Graphics": "390 MHz",
+        "SM": "390 MHz",
+        "Memory": "9501 MHz",
+        "Video": "1380 MHz"
+      },
+      "active_clocks_event_reasons": [
+        "SW Power Cap"
+      ],
+      "power_query": "timestamp, power.draw [W], power.limit [W]\n2026/11/08 12:56:03.014, 186.40 W, 370.00 W\n",
+      "request_finished_by_capture_end": false,
+      "path": "results/diagnostic_rewired_20261108_P1_xhigh_gpu_2.txt"
+    },
+    {
+      "capture": 3,
+      "timestamp": "2026-11-08T12:56:04.956+08:00",
+      "clocks": {
+        "Graphics": "405 MHz",
+        "SM": "405 MHz",
+        "Memory": "9501 MHz",
+        "Video": "1380 MHz"
+      },
+      "active_clocks_event_reasons": [
+        "SW Power Cap"
+      ],
+      "power_query": "timestamp, power.draw [W], power.limit [W]\n2026/11/08 12:56:05.012, 186.91 W, 370.00 W\n",
+      "request_finished_by_capture_end": false,
+      "path": "results/diagnostic_rewired_20261108_P1_xhigh_gpu_3.txt"
+    }
+  ],
+  "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite a 370 W configured limit. All 250 W blocks skipped by user decision; power limit unchanged."
+}

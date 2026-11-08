@@ -1,0 +1,39 @@
+{
+  "ready_ts": "2026-11-08T13:50:39.446+08:00",
+  "startup_elapsed_s": 327.663927227004,
+  "models": {
+    "object": "list",
+    "data": [
+      {
+        "id": "qwen3.8-27b",
+        "object": "model",
+        "created": 1794117039,
+        "owned_by": "vllm",
+        "root": "/app/models/Qwen3.8-27B-W4A16-AutoRound-fast",
+        "parent": null,
+        "max_model_len": 65536,
+        "permission": [
+          {
+            "id": "modelperm-91b158d60e1aff9e",
+            "object": "model_permission",
+            "created": 1794117039,
+            "allow_create_engine": false,
+            "allow_sampling": true,
+            "allow_logprobs": true,
+            "allow_search_indices": false,
+            "allow_view": true,
+            "allow_fine_tuning": false,
+            "organization": "*",
+            "group": null,
+            "is_blocking": false
+          }
+        ]
+      }
+    ]
+  },
+  "gpu_memory_csv": "memory.used [MiB], memory.free [MiB]\n22865 MiB, 1255 MiB\n",
+  "container_status": "running 0 healthy",
+  "vision_enabled": true,
+  "vision_offload": "default unchanged",
+  "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite configured 370 W; power limit unchanged."
+}

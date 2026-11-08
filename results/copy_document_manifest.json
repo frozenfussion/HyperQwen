@@ -1,0 +1,46 @@
+{
+  "source_paths": [
+    "upstream/PATCHES.md",
+    "upstream/README.md",
+    "upstream/batch/README.md",
+    "upstream/bench/README.md",
+    "upstream/drafter/README.md",
+    "upstream/fa2/README.md",
+    "upstream/kvarn/README.md",
+    "upstream/lsa/README.md",
+    "upstream/prepare/README.md",
+    "upstream/pthfa/README.md",
+    "upstream/single-user/README.md",
+    "upstream/xgrammar/README.md"
+  ],
+  "full_characters": 164158,
+  "initial_characters": 100000,
+  "initial_utf8_bytes": 100211,
+  "separator": "blank line",
+  "trim_rule": "prefix only; remove from end",
+  "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W; configured limit 370 W; all 250 W blocks skipped.",
+  "calibration": [
+    {
+      "block": "B_document_probe_1",
+      "characters": 100000,
+      "prompt_tokens": 30868
+    },
+    {
+      "block": "B_document_probe_2",
+      "characters": 80990,
+      "prompt_tokens": 25042
+    }
+  ],
+  "candidate_characters": 80990,
+  "final_characters": 80990,
+  "final_utf8_bytes": 81171,
+  "final_lines": 904,
+  "copy_prompt_tokens": 25042,
+  "token_count_scope": "prompt_tokens includes document, copy instruction, and chat template",
+  "measured_copy_prompt_tokens": [
+    25042
+  ],
+  "measured_control_prompt_tokens": [
+    25032
+  ]
+}

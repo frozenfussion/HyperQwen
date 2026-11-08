@@ -1,0 +1,272 @@
+{
+  "block": "off_phase3_images_370",
+  "warmup": false,
+  "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite configured 370 W; power limit unchanged.",
+  "start_temperature_c": 48.0,
+  "request_count": 16,
+  "telemetry": {
+    "median_power_w": 186.13,
+    "max_temperature_c": 60.0,
+    "median_temperature_c": 59.0,
+    "median_sm_mhz": 405.0,
+    "median_memory_mhz": 9501.0
+  },
+  "groups": {
+    "01_selfie_gates.jpg/off": {
+      "n": 2,
+      "decode_tok_s": {
+        "median": 19.04431710090622,
+        "min": 18.466738161748633,
+        "max": 19.621896040063803
+      },
+      "ttft_s": {
+        "median": 0.9814788989970111,
+        "min": 0.06497963799483841,
+        "max": 1.8979781599991838
+      },
+      "prompt_tokens": [
+        1202,
+        1202
+      ],
+      "completion_tokens": [
+        801,
+        674
+      ],
+      "finish_reasons": [
+        "stop",
+        "stop"
+      ],
+      "image_dimensions": "1080x1080"
+    },
+    "01_selfie_gates.jpg/xhigh": {
+      "n": 2,
+      "decode_tok_s": {
+        "median": 18.40856152570391,
+        "min": 18.40150765200615,
+        "max": 18.41561539940167
+      },
+      "ttft_s": {
+        "median": 1.05794041849731,
+        "min": 0.30720666199340485,
+        "max": 1.8086741750012152
+      },
+      "prompt_tokens": [
+        1242,
+        1242
+      ],
+      "completion_tokens": [
+        4096,
+        3790
+      ],
+      "finish_reasons": [
+        "length",
+        "stop"
+      ],
+      "image_dimensions": "1080x1080"
+    },
+    "02_portrait.jpg/off": {
+      "n": 2,
+      "decode_tok_s": {
+        "median": 18.39448563633782,
+        "min": 18.288722452368027,
+        "max": 18.500248820307615
+      },
+      "ttft_s": {
+        "median": 0.841496750999795,
+        "min": 0.8290890069984016,
+        "max": 0.8539044950011885
+      },
+      "prompt_tokens": [
+        1193,
+        1193
+      ],
+      "completion_tokens": [
+        695,
+        773
+      ],
+      "finish_reasons": [
+        "stop",
+        "stop"
+      ],
+      "image_dimensions": "1080x1081"
+    },
+    "02_portrait.jpg/xhigh": {
+      "n": 2,
+      "decode_tok_s": {
+        "median": 18.463237969136262,
+        "min": 18.377490440583376,
+        "max": 18.54898549768915
+      },
+      "ttft_s": {
+        "median": 0.9341871240030741,
+        "min": 0.09199483699921984,
+        "max": 1.7763794110069284
+      },
+      "prompt_tokens": [
+        1233,
+        1233
+      ],
+      "completion_tokens": [
+        995,
+        1069
+      ],
+      "finish_reasons": [
+        "stop",
+        "stop"
+      ],
+      "image_dimensions": "1080x1081"
+    },
+    "03_id_card.jpg/off": {
+      "n": 2,
+      "decode_tok_s": {
+        "median": 18.454454062874497,
+        "min": 18.34461971256689,
+        "max": 18.564288413182105
+      },
+      "ttft_s": {
+        "median": 0.3829498175000481,
+        "min": 0.3619551779993344,
+        "max": 0.40394445700076176
+      },
+      "prompt_tokens": [
+        175,
+        175
+      ],
+      "completion_tokens": [
+        286,
+        48
+      ],
+      "finish_reasons": [
+        "stop",
+        "stop"
+      ],
+      "image_dimensions": "432x277"
+    },
+    "03_id_card.jpg/xhigh": {
+      "n": 2,
+      "decode_tok_s": {
+        "median": 18.448689481388552,
+        "min": 18.436546170249404,
+        "max": 18.4608327925277
+      },
+      "ttft_s": {
+        "median": 0.4051433934982924,
+        "min": 0.3680731689964887,
+        "max": 0.4422136180000962
+      },
+      "prompt_tokens": [
+        215,
+        215
+      ],
+      "completion_tokens": [
+        2098,
+        4096
+      ],
+      "finish_reasons": [
+        "stop",
+        "length"
+      ],
+      "image_dimensions": "432x277"
+    },
+    "04_worksheet.jpg/off": {
+      "n": 2,
+      "decode_tok_s": {
+        "median": 18.3427565297545,
+        "min": 18.336339158309112,
+        "max": 18.349173901199887
+      },
+      "ttft_s": {
+        "median": 2.51257713200539,
+        "min": 0.5926349640067201,
+        "max": 4.43251930000406
+      },
+      "prompt_tokens": [
+        2079,
+        2079
+      ],
+      "completion_tokens": [
+        1321,
+        2292
+      ],
+      "finish_reasons": [
+        "stop",
+        "stop"
+      ],
+      "image_dimensions": "1542x2576"
+    },
+    "04_worksheet.jpg/xhigh": {
+      "n": 2,
+      "decode_tok_s": {
+        "median": 18.271254058292136,
+        "min": 18.247342728112823,
+        "max": 18.295165388471453
+      },
+      "ttft_s": {
+        "median": 1.6520173555036308,
+        "min": 0.22407959100382868,
+        "max": 3.079955120003433
+      },
+      "prompt_tokens": [
+        2119,
+        2119
+      ],
+      "completion_tokens": [
+        4096,
+        4096
+      ],
+      "finish_reasons": [
+        "length",
+        "length"
+      ],
+      "image_dimensions": "1542x2576"
+    }
+  },
+  "off_repeat_1_answers": {
+    "01_selfie_gates.jpg": "This is a close-up, casual selfie of two young adults — a man and a woman — taken outdoors on what appears to be a cool or cold day. The photo captures them smiling warmly at the camera, suggesting comfort and intimacy between them.\n\n**The People:**\n\n- **Woman (on the left):** She has light brown hair pulled back under a dark gray or blue knit beanie. Her eyes are strikingly light-colored (possibly green or hazel), accentuated with winged eyeliner. She wears a beige or tan parka with a prominent black fur-trimmed hood that frames her face. Her expression is soft and serene, with a slight smile. She’s gently touching her ear or adjusting her beanie with her right hand.\n\n- **Man (on the right):** He has short, dark hair, a neatly trimmed beard and mustache, and wears rectangular-framed glasses with thin black rims. He’s smiling broadly, showing his teeth. His outfit consists of a layered ensemble: a camouflage-patterned inner jacket (possibly a hoodie or windbreaker) visible around his neck, topped with a tan or khaki winter coat that has a high collar and zipper. A black backpack strap crosses his chest, indicating he may be a student or traveler.\n\n**Clothing & Season:**\n\nBoth are dressed in heavy winter clothing — parkas, hoods, and layers — which strongly suggests chilly weather. The fur trim on the woman’s hood and the man’s bulky coat reinforce this. There’s no snow visible, but the overcast sky and their attire point to late autumn, winter, or early spring in a temperate climate.\n\n**Setting & Background:**\n\nBehind them stands an ornate, historic-looking wrought-iron gate, black with elaborate gold-colored flourishes. The most notable feature is a large, centrally placed royal coat of arms — featuring a crowned shield flanked by two lions (likely lions rampant), surrounded by a golden laurel wreath and surmounted by a crown. This emblem is highly distinctive.\n\nThe gate is set into a grand stone building with classical architectural details — pilasters, cornices, and multi-paned windows — visible behind the ironwork. To the far right, part of another stone structure with sculptural elements can be seen. In the blurred background between the two subjects, a few other pedestrians are faintly visible, including one person in a plaid shirt, suggesting this is a public, urban space.\n\n**Location & Reasoning:**\n\nThis photo was almost certainly taken in **London, United Kingdom**, specifically at **Buckingham Palace**.\n\n**Why?**\n\n1. **The Coat of Arms:** The emblem behind them is the Royal Coat of Arms of the United Kingdom, specifically the version used at Buckingham Palace. It features the crowned shield with the quarters for England (three lions), Scotland (lion rampant), and Ireland (harp), flanked by a lion and a unicorn (not both lions as sometimes misremembered — though in some views, the supporters may appear similar). The golden laurel wreath and crown above are characteristic of the palace’s entrance gates.\n\n2. **Architecture:** The ornate black-and-gold gates and the neoclassical facade of the building match the famous East Front of Buckingham Palace, which faces The Mall and Constitution Hill. The gates themselves are iconic and frequently photographed by tourists.\n\n3. **Context:** The couple appears to be tourists or visitors taking a souvenir photo in front of one of London’s most recognizable landmarks. Their casual yet warm interaction and the presence of other people in the background support this interpretation.\n\nIn summary, this is a happy, personal moment captured against a backdrop of British royalty and history — likely during a visit to London, possibly as part of a tour or holiday. The combination of modern streetwear and majestic historic architecture creates a compelling contrast typical of many travel selfies taken in major world cities.",
+    "02_portrait.jpg": "This is a close-up, head-and-shoulders portrait of a young woman with a thoughtful or contemplative expression. Here’s a detailed breakdown:\n\n**Appearance:**\n- She has fair skin with a smooth complexion and a subtle rosy blush on her cheeks.\n- Her eyes are large, light-colored (possibly green or hazel), with well-defined upper eyelids and prominent lashes.\n- Her eyebrows are neatly shaped and filled in, creating a clean arch.\n- Her hair is dark brown, parted slightly off-center, and mostly covered by her headscarf, with a few strands visible at the temples.\n\n**Clothing:**\n- She is wearing a navy blue top with a white floral pattern. The flowers appear to be stylized daisies or similar blooms with simple petals and stems.\n- The neckline of the top is round and sits just below her collarbone.\n\n**Accessories:**\n- She wears a white or off-white headscarf (hijab) that is neatly wrapped around her head, covering her hair completely except for a small section at the parting. The fabric drapes softly down one side of her neck.\n- She is wearing medium-sized, thin gold hoop earrings that catch the light subtly.\n\n**Makeup:**\n- Her makeup is polished and elegant:\n  - **Eyes:** Black winged eyeliner extends outward from the outer corners of her eyes, giving them a cat-eye effect. Her lashes are coated with mascara, enhancing their volume and length.\n  - **Eyebrows:** Neatly groomed and filled in with a dark brown shade to match her hair.\n  - **Lips:** A matte, warm terracotta or burnt orange lipstick is applied precisely, defining the lip shape without being overly bold.\n  - **Skin:** Her foundation appears even and natural, with a hint of highlighter on the high points of her cheekbones and nose bridge. Blush is applied softly to the apples of her cheeks.\n\n**Pose & Expression:**\n- She is looking slightly upward and to her left (viewer’s right), not directly at the camera — this creates a sense of introspection or daydreaming.\n- Her right hand is raised, with the index finger gently touching her chin near the corner of her mouth. This gesture reinforces the thoughtful or pensive mood.\n- Her lips are closed but relaxed; there’s no smile, but also no frown — it’s a neutral, reflective expression.\n\n**Background:**\n- The background is a plain, muted gray wall with a subtle vertical seam or corner visible behind her left shoulder (viewer’s right).\n- The lighting is soft and diffused, likely from a frontal source, which evenly illuminates her face without harsh shadows.\n- The overall composition is tight, focusing entirely on her face and upper torso, drawing attention to her expression and makeup.\n\n**Overall Impression:**\nThe photo conveys a sense of quiet confidence and intellectual curiosity. The combination of the thoughtful pose, detailed makeup, and simple yet stylish attire suggests someone who is self-aware and intentional in their presentation. The neutral background ensures all focus remains on her face and expression.\n\n---  \n*Note: The image appears to be digitally enhanced or filtered, as the skin texture is very smooth and the colors are vibrant but balanced — typical of social media portraits.*",
+    "03_id_card.jpg": "Based on the text provided on the card, here is the breakdown:\n\n**Type of Document:**\nThis is a **Malaysian National Identity Card (Kad Pengenalan)**. The text \"MyKad\" also indicates it is the specific version of the ID card that contains a microchip.\n\n**What the Number Encodes:**\nThe number `550106-12-5821` follows the standard format for a Malaysian identity number (NRIC Number). It encodes the following personal information:\n\n*   **55:** The first two digits represent the birth year. In this case, it indicates a birth year of 19**55**.\n*   **01:** The next two digits represent the birth month. This is January (01).\n*   **06:** The next two digits represent the birth day. This is the 6th.\n*   **12:** These two digits represent the state of registration. `12` corresponds to the state of Sabah (which is also confirmed by the address on the card).\n*   **5821:** These are unique serial numbers.\n\nTherefore, this specific card is for a male (indicated by the last digit being odd) born on January 6, 1955, and registered in the state of Sabah.",
+    "04_worksheet.jpg": "Based on the image provided, here is the list of every readable printed sum, its correct mathematical answer, and a description of the handwritten/drawn/stuck-on elements.\n\n**Printed Sums and Correct Answers:**\n\n*   **Top Left (partially visible):**\n    *   $8 - 3 = 5$\n    *   $9 - 5 = 4$\n    *   $9 - 8 = 1$\n    *   $3 - 2 = 1$\n    *   $8 - 4 = 4$\n    *   $4 - 1 = 3$\n    *   $8 - 7 = 1$\n\n*   **Top Middle:**\n    *   $8 - 3 = 5$\n    *   $9 - 3 = 6$\n    *   $8 - 5 = 3$\n    *   $3 - 1 = 2$\n    *   $8 - 2 = 6$\n    *   $2 - 1 = 1$\n    *   $5 - 3 = 2$\n    *   $7 - 5 = 2$\n\n*   **Top Right:**\n    *   $8 - 4 = 4$\n    *   $7 - 4 = 3$\n    *   $9 - 3 = 6$\n    *   $9 - 1 = 8$\n    *   $7 - 5 = 2$\n    *   $9 - 7 = 2$\n    *   $8 - 6 = 2$\n    *   $4 - 3 = 1$\n\n*   **Middle Left (partially obscured):**\n    *   $9 - 1 = 8$\n    *   $9 - ? = ?$ (obscured)\n    *   $5 = ?$ (obscured)\n    *   $- 1 = ?$ (obscured)\n    *   $? = ?$ (obscured)\n    *   $? = ?$ (obscured)\n    *   $3 = ?$ (obscured)\n    *   $? = ?$ (obscured)\n\n*   **Middle Center:**\n    *   $3 - 1 = 2$\n    *   $6 - 5 = 1$\n    *   $4 - 1 = 3$\n    *   $6 - 1 = 5$\n    *   $9 - 7 = 2$\n    *   $7 - 5 = 2$\n    *   $4 - 1 = 3$\n    *   $9 - 7 = 2$\n    *   $9 - 1 = 8$\n    *   $9 - 4 = 5$\n\n*   **Middle Right:**\n    *   $2 - 1 = 1$\n    *   $3 = ?$ (obscured)\n    *   $? = 6$ (obscured)\n    *   $? = ?$ (obscured)\n    *   $6 - 3 = 3$\n    *   $9 - 8 = 1$\n    *   $9 - 4 = 5$\n    *   $7 - 3 = 4$\n    *   $2 - 1 = 1$\n    *   $9 - 8 = 1$\n\n*   **Bottom Left (partially visible):**\n    *   $9 - 1 = 8$\n    *   $4 - 2 = 2$\n    *   $7 - 3 = 4$\n    *   $9 - 4 = 5$\n    *   $9 - 3 = 6$\n\n*   **Bottom Right:**\n    *   $9 - 8 = 1$\n    *   $7 - 4 = 3$\n    *   $8 - 7 = 1$\n    *   $9 - 4 = 5$\n    *   $8 - ? = ?$ (obscured)\n\n---\n\n**Handwritten, Drawn, or Stuck-on Elements:**\n\n1.  **Handwritten Answers:** Every answer space has been filled in with a number written in blue or green pencil. Most of the answers are correct, but some appear to be incorrect (e.g., $8-4$ is written as 3, $9-3$ is written as 12 in one spot, $6-3$ is written as 5).\n2.  **Handwritten Scoring/Marking:** Large numbers, primarily \"8\"s, are written in blue and green pencil next to groups of answers. These appear to be scores or marks given by a teacher.\n3.  **Handwritten Loops and Lines:** There are many large, looping blue lines drawn over the worksheet, connecting different answers or sections. These look like grading marks or corrections.\n4.  **Red Stamp/Draw:** In the middle section, there is a large, red, scribbled circle or stamp over some of the answers. It looks like a \"correct\" or \"good job\" mark, but it's very messy.\n5.  **Stickers:**\n    *   A small sticker of a child in a green dress and red hat is stuck near the top left.\n    *   A rectangular sticker with a cartoon child sleeping in a blue nightcap is on the middle left.\n    *   A square sticker with a cartoon baby and a white cat sleeping under a purple blanket is on the middle right.\n    *   A small, yellowish sticker (possibly a piece of tape or a reward) is on the far right edge.\n6.  **Blue Doodle:** At the very bottom center, there is a blue, squiggly, star-like drawing.\n7.  **Green Scribbles:** There are some smaller green scribbles or marks scattered around, possibly part of the scoring system."
+  },
+  "xhigh_reasoning_chars": {
+    "01_selfie_gates.jpg": [
+      {
+        "repeat": 1,
+        "chars": 15226
+      },
+      {
+        "repeat": 2,
+        "chars": 13305
+      }
+    ],
+    "02_portrait.jpg": [
+      {
+        "repeat": 1,
+        "chars": 2399
+      },
+      {
+        "repeat": 2,
+        "chars": 2598
+      }
+    ],
+    "03_id_card.jpg": [
+      {
+        "repeat": 1,
+        "chars": 5213
+      },
+      {
+        "repeat": 2,
+        "chars": 14136
+      }
+    ],
+    "04_worksheet.jpg": [
+      {
+        "repeat": 1,
+        "chars": 12943
+      },
+      {
+        "repeat": 2,
+        "chars": 12525
+      }
+    ]
+  }
+}

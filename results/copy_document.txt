@@ -1,0 +1,904 @@
+# The patch series, one line each
+
+What every file in `patches/` (and `kvarn/`) is, where it came from, and what retires it. `patches/apply.sh` applies
+them in the order of `patches/series` onto the installed vLLM wheel; `verify.sh` checks each one is in place. Kinds:
+
+- **backport**: a merged or open upstream change carried early. Retires when the pin carries it.
+- **fix**: a defect in upstream or in this stack, fixable upstream. Retires when upstream takes it.
+- **feature**: something upstream does not have. Stays until upstreamed as a feature.
+- **local**: this hardware or environment (WSL2, sm80, a tuned build, env knobs). Stays.
+- **own**: a fix to a feature this repo introduced. Rides with that feature.
+
+`fa2/` carries a diff against another repository (the fp8-KV FA2 kernel against vllm-project/flash-attention at the commit vLLM pins), so it is not in `patches/` or this table. `fa2/README.md` has its provenance, and the `fa2-upstream` job in `patch-integrity.yml` checks it against that commit.
+
+Cut against: the pin the current hunks were generated on. The files are the source. Check out the tag `v<version>` for the vLLM version pinned in `docker/requirements.txt` before authoring a topic; historical version numbers in benchmark notes are not the patch base. Each contributor keeps the topics as commits (subject `[qwen38] <topic>`) in that pinned checkout, and `scripts/export-patch.sh` turns a commit into a file whose `--- exported from` line names that commit, so the series applies to the pinned tree with exact context; `patches/apply.sh` (which the Dockerfile and the install pages call),
+`patches/check_vllm_series.sh`, `kvarn/install.sh` and `verify.sh` apply and check with `--fuzz 0`, and a hunk whose context has moved fails the
+build by name instead of landing by guess. Regenerate a file with `bash scripts/export-patch.sh <vllm checkout>
+<commit> patches/<topic>.patch`; do not edit the files by hand. A patch that reads an env knob registers it in
+`envs.py` in its own hunk (so the knob is in the torch.compile cache key), and reads it through `vllm.envs`.
+
+The table. Each file ends its preamble with its row as headers: `Kind:`, `What:`, `Upstream:`, `Cut-against:` and
+`Retires-when:`, one per line, and a long value continues on lines that start with spaces. `python3 scripts/patches_md.py`
+writes the table below from them, in apply order, and CI fails when the table is not current. To change a row, change the
+headers in the patch file (the files are the source) and run the script.
+
+<!-- table:begin. scripts/patches_md.py writes this table from the patch headers; do not edit it -->
+| patch | kind | what | upstream | cut against | retires when |
+|---|---|---|---|---|---|
+| qwen3_5-embed-quant | fix | pass `quant_config` to the token embedding (main model and MTP module) | none yet | 0.32.0 | upstream PR |
+| marlin-int8-layer-select | local | env vars to pick which layers run W4A8 with the Marlin kernel | none | 0.32.0 | stays |
+| marlin-int8-negative-scales | fix | Marlin W4A8 reads group scales as unsigned; AutoRound exports negative ones | none yet | 0.32.0 | upstream PR |
+| qwen3_5-mtp-draft-vocab | feature | vocab-truncated draft head for MTP | none | 0.32.0: the draft_lm_head skip follows #60152's is_unused_checkpoint_weight check in remap_weight_names | upstreamed |
+| vllm-pr50021-gdn-spec-bounds | backport | bounds checks in GDN/KDA spec-decode state lookups | vllm #50021 (open) | 0.32.0 | the pin that carries #50021 |
+| sampler-small-topk-fast-softmax | feature | sort-free top-k/top-p for small k, multi-block row softmax | none | 0.32.0 | upstreamed or superseded |
+| spec-decode-attn | feature | split-KV verify attention on FLASH_ATTN with query-row tiling | none | 0.32.0: the split-KV branch re-indented after #61126 removed cascade attention; its helpers follow the kernel singleton | upstreamed |
+| speed-knobs-envs | local | register this repo's env knobs in `envs.py` | none | 0.32.0 | stays while the knobs exist |
+| hybrid-kv-groups-v2-cudagraph | fix | KV group sizing when the smallest bucket is the drafter's sliding-window layers | none yet | 0.32.0 | upstream PR |
+| dflash2-lookup-drafting | feature | lookup-augmented drafting for DFlash2 (n-gram search over the context) | none | 0.32.0: the lookup's draft count is clamped to the step's num_spec_tokens, which #57053 (dynamic K) now slices the drafts to; with dynamic K off the two are equal. A None from next_num_draft_tokens() (all of them) stays None, which set_draft_tokens reads as the sliced width | upstreamed |
+| hybrid-sw-block-promote | fix | promote a draft SW layer's block to a divisor of the primary block instead of padding its page | none yet (upstream pads) | 0.32.0: re-anchored after #57169 deleted the GLM5-next helpers it sat beside; only _promote_indivisible_block_sizes is added | upstream PR |
+| spec-decode-int8-kv | feature | split-KV verify attention over an int8 per-token-head cache | none | 0.32.0 | rides with spec-decode-attn |
+| vision-tower-cpu-offload | local | Qwen3 vision tower bulk weights in host RAM | none | 0.32.0 | stays |
+| int4-kv-per-token-head | feature | int4 per-token-head KV cache with the DFlash2 drafter | none | 0.32.0 | upstreamed |
+| marlin-repack-staged-sm80 | local | one grow-only staging buffer for the sm80 Marlin repack (fork #27), opt-in with `VLLM_MARLIN_REPACK_STAGED=1` | none | 0.32.0 | stays |
+| offload-dflash-eagle-groups | fix | OffloadingConnector under dflash flagged every KV group as draft attention (fork #33) | none yet | 0.32.0 | upstream PR |
+| dflash2-ngram-chains | feature | quantized candidate chains for the drafter; `propose` override | none | 0.32.0: propose() takes dp_sync_state (#60754 renamed dp_sync) and forwards num_speculative_tokens, which the 0.32 runner passes by keyword on every step | upstreamed |
+| offload-wsl2-devptr | local | CPU offload tier device pointers on WSL2 | none | 0.32.0 | stays |
+| spec-decode-int4-kv-mq3d | feature | multi-query 3D int4 verify path | none | 0.32.0 | rides with int4-kv-per-token-head |
+| dflash2-prewarm | fix | compile every DFlash2 rung at boot instead of at first request | none yet | 0.32.0 | upstream PR |
+| marlin-tune-table | local | wiring for a locally built tunable Marlin extension, off by default | none | 0.32.0 | stays |
+| prefill-attn-int8 | feature | int8-QK Triton prefill attention for head_dim 256 | none | 0.32.0: the int8 prefill branch re-indented after #61126 removed cascade attention | upstreamed |
+| spec-sampler-prewarm | fix | compile the rejection sampler's Triton kernels at boot (fork #48) | none yet | 0.32.0 | upstream PR |
+| mamba-align-checkpoint-order | fix | keep reachable Mamba state snapshots alive until request end (fork #52) | vllm #45238 (not merged) | 0.32.0 | check against upstream #52789 (internal prefill checkpoints, in 0.29) at each pin |
+| spec-decode-scratch-token-units | own | mq3d scratch sized in tokens, not sequences (fork #46, #57) | none | 0.32.0: carries #58482's SM120 64-segment sizing in token units; spec-decode-scratch-within-budget then turns that mode off | rides with mq3d |
+| mamba-chunked-prefill-align | fix | state loss and NaN during chunked prefill on Mamba/GDN | none yet | 0.32.0: the chunk_o.py half is retired (#60502 loads g masked with other=0.0, the lanes it zeroed); the mamba_utils.py half stays | upstream PR |
+| spec-decode-scratch-within-budget | own | mq3d scratch allocated inside the memory budget (fork #57) | none | 0.32.0: the pool owns the scratch at 16 segments, so #58482's SM120 64-segment mode is off in TRITON_ATTN (max_seqs_64_segments = 0): RTX 50 cards keep 0.31's 16 segments and lose #58482's occupancy gain; correctness unchanged | rides with mq3d |
+| dflash2-z-adaptive-emitted | fix | adaptive z counts emitted tokens, not sampling slots | none yet | 0.32.0 | upstream PR |
+| dspark-draft-quant-config | fix | bf16 DSpark drafter beside a quantized target (callable `hf_overrides`) | none yet | 0.32.0 | upstream PR |
+| engine-completion-log | feature | one log line per completed engine step, so a stalled core is visible without scraping stats gaps | upstream PR (syv-ai #94/#110) | 0.32.0 | upstreamed |
+| engine-stall-sentinel | feature | daemon thread warns once per episode when no step completes for `VLLM_ENGINE_STALL_SENTINEL_S` while requests are live | upstream PR (syv-ai #94/#110) | 0.32.0: beside #50300's VLLM_CHAT_TEMPLATE_RENDER_TIMEOUT; #59781 removed VLLM_ENGINE_ITERATION_TIMEOUT_S, the old anchor | upstreamed |
+| triton-spec-attn-fp8-kv | feature | split-KV verify attention on the per-tensor fp8 KV cache (TRITON_ATTN, sm89+); registers `VLLM_SPEC_ATTN_DEBUG` | none | 0.32.0 | upstreamed |
+| topk-honour-flashinfer-sampler-switch | fix | `VLLM_USE_FLASHINFER_SAMPLER=0` also covers the drafter's candidate top-k, which `_flashinfer_topk()` did not gate | none yet (syv-ai #106 B1) | 0.32.0 | upstream takes it |
+| memory-profile-after-warmup | fix | run `profile_run` once before the memory-profiling window, synchronize and empty the allocator cache, so a cold compile cache's scratch is not counted as transient peak and the KV cache the warm boot grants is not refused | none yet | 0.32.0 | upstream profiles after warmup |
+| cudagraph-memory-from-allocator | fix | measure captured CUDA-graph memory by the allocator's reserved bytes and log the driver's free-memory delta beside it; under WSL2's driver that delta reads zero once the KV cache fills the budget and collapses by 5.44 GiB during a cold compile, which the graph estimate subtracted from the KV budget and refused the CTX=huge first boot | none yet | 0.32.0: the reserved-memory sample sits ahead of #59160's capture_pool block | upstream measures by the allocator |
+| bench-probe-errors | fix | `vllm bench serve`'s /tokenize alignment probe sends the API key (Bearer from OPENAI_API_KEY, --header wins) and classifies its failure (404 route-or-name vs 401 vs unreachable vs timeout) instead of one "endpoint unavailable" line for every cause; the /metrics scrapes (`fetch_spec_decode_metrics`, `fetch_diffusion_metrics`) send the benchmark's headers too, so a keyed server no longer reports the spec-decode block as absent | vllm #59888 | 0.32.0 | upstream PR |
+| serve-model-path-match | fix | a model name equal to a served model's root path or its basename is accepted (exact matches only): /v1/models publishes the root, and echoing it back used to 404 | vllm #59890 | 0.32.0 | upstream PR |
+| tokenize-v1-route | feature | /tokenize and /detokenize also served under /v1 for OpenAI-SDK base_urls; operation ids stay unique (name+path+method) | none (vllm #59891 was closed: upstream keeps `/v1` for the official OpenAI endpoints) | 0.32.0 | stays |
+| marlin-int8-asym-zp | fix | the Marlin int8-activation path (`INT8_ACT=int8`) accepts zero-point `uint4` weights, so asymmetric AWQ exports (compressed-tensors `symmetric: false`) run W4A8 like the symmetric ones; the `kS8 x kU4` kernel is already compiled, only two asserts refused it | none yet | 0.32.0 | upstream PR |
+| compile-key-runtime-knobs | fix | keeps this repo's runtime-only env knobs (`VLLM_ENGINE_STALL_SENTINEL_S`, `VLLM_MAMBA_ALIGN_KEEP_CHECKPOINTS`, `VLLM_DFLASH2_CHAIN_LOG_SEC`, `VLLM_MARLIN_TUNE_DIR`) and the deprecated `VLLM_PREFIX_CACHE_RETENTION_INTERVAL` out of `compile_factors()`, so changing one no longer forces a cold torch.compile (#183) | none | 0.32.0 | stays while the knobs exist |
+| auth-deny-default | fix | --api-key guards every path except /health, /ping, /load and /version (deny by default). The old prefix list left /tokenize, /detokenize, /metrics and the docs open without the key. /metrics now needs the key: a scraper that cannot send it must use a separate listener, and the in-tree scrapes send it (bench-probe-errors). The allowlist ignores a trailing slash, so a probe on /health/ does not get a 401. Only a real CORS preflight (OPTIONS with Origin and Access-Control-Request-Method) skips the token; a bare OPTIONS needs it, because /metrics answers any method. The --api-key help text describes the allowlist | vllm #59892 | 0.32.0 | upstream PR |
+| spec-attn-smem-fit | fix | the split-KV verify attention sizes its KV tile to the device's shared memory: halve the KV tile when Triton reports OutOfResources, so it launches on Turing (sm75, 64 KB per block) | none | 0.32.0 | upstream with spec-decode-attn |
+| bench-sse-keepalive | fix | `vllm bench serve` no longer fails a request whose server sends an SSE keep-alive before the first token: the request functions stripped each network chunk, which deleted the blank line between SSE messages and glued the `: keep-alive` comment to every message after it. With the launchers' `--sse-keep-alive-interval 30`, that failed every prompt whose prefill took over 30 s (`run_benchmarks.sh --long` read zeros; #216 lost its 48k+ rows). The audio request function also skips SSE comments now | none yet | 0.32.0 | upstream PR |
+| sampler-warmup-cuda | backport | registers the V2 runner's top-k/top-p sampler JIT warmups on CUDA too (vllm #58092 without #58465's ROCm-only gate): 0 in-request compiles, ~71-78 s of warmup once per cold cache volume, ~0.2 s warm | vllm #58092 (merged after 0.30.0) | 0.32.0: #58092 is in the pin, still gated to ROCm by #58465; the patch removes the gate | the pin that carries #58092 with CUDA registration (upstream gates it to ROCm; an opt-in is the ask) |
+| pinned-kv-empty-cache | fix | with `kv_cache_memory_bytes` pinned (the launchers' `KV_MEM`), synchronize and empty the allocator cache after the profile run, so a cold compile cache's scratch (1.2 GiB on a 24 GiB card) does not stay under the KV cache and over-commit the card, which under WSL2's driver moves GPU memory to system RAM and slows the KVarN kernels; `memory-profile-after-warmup` does the same on the measured path only | vllm #59893 | 0.32.0: the synchronize and empty_cache follow upstream's set_current_vllm_config block around profile_run | upstream empties the cache on the pinned path |
+| api-root-health | feature | GET/HEAD /, /api/status, /api/experimental/model-recommendations, and /api/show for `ollama launch codex` compatibility. Matches served models dynamically, returns 404 for unserved models (the body names the requested model only, never a served name or path), reads context length from model_config.max_model_len, and adds the routes to UNGUARDED_PATHS | none yet | 0.32.0 | upstream PR |
+| qwen3_5-embed-uva | feature | `VLLM_EMBED_UVA=1` keeps the quantized token embedding (main model and MTP module) in pinned host RAM behind a CUDA UVA view, freeing about 1.25 GiB of VRAM for the KV pool (+15.7% tokens on a 3090) at no measured decode or prefill cost, for about 2.1 GiB of host RAM; default off | none | 0.32.0: adjacency with #60623, which removed the vendored qwen3_5 configs (transformers >= 5.16.1 ships them) | stays while the knob exists |
+| vllm-pr40371-prompt-progress | feature | opt-in return_progress on streaming chat/completions; SSE chunks carry prompt_progress (total/cache/processed/time_ms) while the prompt prefills | vllm #40371 (open) | 0.32.0: num_computed_tokens follows upstream's new error parameter, and every call site passes it by keyword (a positional call would bind the count to error) | the pin that carries #40371 |
+| vllm-pr61050-lru-running-prefix | fix | the CPU KV tier keeps a running request's head chunks; an eviction before the request finishes takes its tail first | vllm #61050 (open); the regression is from vllm #51787 | 0.32.0 | the pin that carries #61050 |
+| kv-cache-seat-budget | feature | one INFO line after "GPU KV cache size": resident requests at ~1k, 32k and max_model_len, from each device group's admission cap at that length and the pool's usable blocks | none; vllm #54840 (open) logs a per-group block budget at the same point | 0.32.0 | upstream logs residency by context length |
+| gdn-ba-pad-small-m | feature | pad 2-4 token batches of the bf16 GDN `in_proj_ba` GEMM to 5 rows (cuBLAS cliff at that shape; MTP-3 verify) | none | 0.32.0 | upstreamed, or a cuBLAS that picks a sane kernel at M = 2..4 |
+| vllm-pr61612-flashinfer-async-barrier | fix | with async scheduling on, FlashInfer's metadata builder takes the blocking seq_lens.cpu() again, the host barrier between steps that vllm #57214 dropped | vllm #61612 (open); the regression is from vllm #57214. vllm #61622 (open, for #61621) makes the blocking read wait on an event instead of holding the CUDA context lock, but leaves the shortcut as it is, so without #61612 it does not fix this | 0.32.0 | the pin that carries #61612, or another change that keeps the barrier under async scheduling |
+| quant-scale-view-preserve-pages | backport | create per-token-head scale views without filling shared KV pages, preserving live hybrid state and existing scales | vllm #64141 (open), fixing #63944; runtime change credited to yueyinmochen | 0.32.0 | the pin carries vllm #64141 or an equivalent non-destructive scale-view implementation |
+| dflash-context-capacity | fix | reject DFlash contexts exceeding the drafter capacity and fixed lookahead | HyperQwen issue #405 | 0.32.0 | upstream validates DFlash positional capacity before inference |
+| async-mamba-kv-sizing | fix | account for async Mamba states and usable grouped KV capacity | none yet | 0.32.0 | upstream accounts for async states and usable grouped capacity |
+| continuous-stream-usage | fix | preserve continuous usage while tool parsing buffers deltas | none yet | 0.32.0 | upstream preserves continuous usage during parser buffering |
+| offload-mamba-swa-replay-boundaries | fix | retain SWA history at the earlier Mamba replay boundary under sparse offload | HyperQwen issue #405 | 0.32.0 | upstream native offload retains every hybrid replay window |
+| kvarn/kvarn-0.32.0 | feature | KVarN cache dtypes, quant mode, backend registration, page size | none (KVarN is Huawei CSL's, Apache-2.0) | 0.32.0: KVQuantMode.KVARN moves from 11 to 100, because #57057's ULTRAQUANT_4BIT took 11 (a duplicate IntEnum value is a silent alias); both dtypes kept in every registry | upstreamed |
+| kvarn/kvarn-v2-runner-0.32.0 | own | KVarN with the V2 runner and DFlash2 (SW groups, Mamba block index, selector guards) | none | 0.32.0: the SlidingWindowManager.cache_blocks override stays after #61126 removed get_num_common_prefix_blocks; the mamba_hybrid.py hunk is retired (#55601 seeds the state index with mamba_block_size, the same fix) | rides with KVarN |
+| kvarn/kvarn-recycled-pages-0.32.0 | own | both runners hand KVarN each step's block ids, so it drops (never flushes) what it still holds for a page another KV-cache group has taken: a late flush of a finished request's last block, or of an evicted retired sink, into another request's mamba state was the "!!!!" output (#208); the KVarN half is in `kvarn/files` | none | 0.32.0 | rides with KVarN |
+| kvarn/kvarn-fp16-dequant-0.32.0 | own | registers `KVARN_FP16_DEQUANT` (#240's fp16 dequant in the fused KVarN decode kernels, default off) in `envs.py`, so `kvarn/files` reads it through `vllm.envs` and it is in the torch.compile cache key | none | 0.32.0 | rides with KVarN |
+<!-- table:end -->
+
+`pthfa/` is not in the table because it is not a patch: it is the source of a separate extension, the pth-flash-attn
+int8 per-token-head attention backend (`PTH_FA=1`, the default on a compute capability 8.6 GPU for `SPEC=mtp CTX=long` and `SPEC=dflash2 CTX=long`; `docs/long-context.md`), which `pthfa/install.sh` builds and installs
+into the venv beside vLLM as a plugin. No vLLM file changes, so the series and `patches/check_vllm_series.sh` are the
+same with or without it. `pthfa/PIN` names the commit it is vendored from (a release tag of https://github.com/noon-at-cgn/pth-flash-attn); `pthfa/check_vendor.sh` checks the files.
+
+Retired at 0.30.0 and removed from the tree: `offload-mtp-serve` (vllm #52771, #52807 and #54288, all in 0.30.0) and `mamba-align-retire-null-gaps` (vllm #55450, in 0.30.0).
+
+Retired at 0.28.0 and removed from the tree later, with the older KVarN ports: `dflash2-backport` (the DFlash2
+speculator on 0.27.1, vllm #52816, native since 0.28.0; every apply site skipped it), `kvarn/kvarn-0.27.1.patch` and
+`kvarn/kvarn-v2-runner.patch` (the 0.27.1 KVarN ports; `kvarn/install.sh` applied neither). Git history keeps
+them.
+
+Retired at 0.29.0 and removed from the tree: `vllm-pr54282-draft-gumbel-salt` (vllm #54282, in 0.29.0),
+`xgrammar-spec-terminated` (in 0.29.0), and `sse-keep-alive` (vllm 585bb07c7, in 0.29.0 and not in
+0.28.0; the `--sse-keep-alive-interval` flag is unchanged, so nothing that sets it needs to change).
+
+Retired on 0.29 for a different reason, and temporarily: `int4-mq3d-envs`: its two registrations
+(`VLLM_INT4_MQ_3D`, `VLLM_INT4_MQ_3D_DEBUG`) already exist on this line in `speed-knobs-envs`, and
+this line's readers already go through `vllm.envs`, so applying it duplicates them and fails at
+`--fuzz 0`. The #114 restructure recreates it as its own topic, moving those registrations out of
+`speed-knobs-envs` rather than adding a second copy, before the pin-flip PR. Until then the 0.28
+and 0.29 shapes differ here by design.
+
+Six files have one line of prose or none above their headers, because their fork commit bodies were that short.
+`dflash2-prewarm` and `dflash2-z-adaptive-emitted` have none. `dflash2-lookup-drafting`, `offload-wsl2-devptr`,
+`spec-decode-int4-kv-mq3d` and `vllm-pr50021-gdn-spec-bounds` have one line. Their `What:` headers describe them, and
+`docs/wsl2-4090.md` ("CPU offload tier under WSL2") explains `offload-wsl2-devptr`. Prose comes from the fork commit
+body and a re-export, not from an edit to the file.
+
+<div align="center">
+
+<h1>HyperQwen</h1>
+
+<p><b>Large Qwen models, served fast on the GPUs people actually own.</b></p>
+
+<p>
+<a href="https://github.com/syv-ai/HyperQwen/actions/workflows/docker-image.yml"><img alt="docker image" src="https://github.com/syv-ai/HyperQwen/actions/workflows/docker-image.yml/badge.svg"></a>
+<a href="https://github.com/syv-ai/HyperQwen/actions/workflows/patch-integrity.yml"><img alt="patch integrity" src="https://github.com/syv-ai/HyperQwen/actions/workflows/patch-integrity.yml/badge.svg"></a>
+<a href="https://github.com/syv-ai/HyperQwen/pkgs/container/hyperqwen"><img alt="ghcr.io" src="https://img.shields.io/badge/ghcr.io-syv--ai%2Fhyperqwen-2496ED?logo=docker&logoColor=white"></a>
+<a href="https://github.com/vllm-project/vllm"><img alt="vLLM 0.32.0" src="https://img.shields.io/badge/vLLM-0.32.0-5C3EE8"></a>
+<a href="LICENSE"><img alt="Apache 2.0" src="https://img.shields.io/github/license/syv-ai/HyperQwen"></a>
+<a href="https://github.com/syv-ai/HyperQwen/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/syv-ai/HyperQwen?style=flat"></a>
+<a href="https://ko-fi.com/mhenrichsen"><img alt="support on Ko-fi" src="https://img.shields.io/badge/Ko--fi-support%20GPU%20time-FF5E5B?logo=kofi&logoColor=white"></a>
+</p>
+
+<a href="docs/media/demo.mp4"><img src="docs/media/demo.avif" alt="HyperQwen on one RTX 3090: one request against stock vLLM, replayed from recorded token arrivals, then 64 requests at once" width="100%"></a>
+
+<sub>One request against stock vLLM, replayed in real time from recorded token arrivals, then 64 at once.
+<a href="docs/media/demo.mp4">1080p60 MP4</a> · <a href="bench/demo">how it is made</a></sub>
+
+</div>
+
+**Today:** [Qwen3.8-27B](https://huggingface.co/Qwen/Qwen3.8-27B) on a single 24 GB
+consumer GPU with vLLM — 150k token context and an OpenAI-compatible API with key
+auth, in two ready-made modes. On an RTX 3090 at 250 W: 127 tok/s single-stream
+in single-user mode, ~1,035 tok/s aggregate decode at 64 concurrent in batch mode,
+and 381 tok/s when the answer quotes its own prompt.
+
+**Where it is going:** more Qwen models, more classes of card. What this repo
+really is, under the serving setup, is a patch series against a pinned vLLM plus
+a model-preparation pipeline — requantized heads, a calibrated draft vocabulary,
+speculation that drafts out of the prompt. Most of that is not specific to one
+checkpoint or one card; it is just that one checkpoint and one card are what has
+been measured to death. See [Roadmap](#roadmap-more-qwen-models-more-cards) for
+what is and is not portable yet, and
+[Field tests wanted](#field-tests-wanted) if you have half an hour on a GPU we
+have never touched.
+
+## Quick start
+
+```bash
+git clone https://github.com/syv-ai/HyperQwen && cd HyperQwen
+cp .env.example .env                      # PowerShell: Copy-Item .env.example .env
+
+docker compose --profile single up -d     # one or a few people chatting
+docker compose --profile batch  up -d     # API backend, many concurrent requests
+```
+
+First start pulls the image (9.5 GB) and requantizes the model (~20 GB, once,
+into `./models`), then serves on `:18020`. One GPU runs one mode at a time.
+
+- **Before exposing it** — compose publishes the port on `127.0.0.1` only (`BIND` in `.env`, default `127.0.0.1`), so another machine cannot reach it until you set a key and `BIND=0.0.0.0`; outside a container, no key means the server binds `127.0.0.1` only:
+  `echo "VLLM_API_KEY=$(openssl rand -hex 24)" >> .env && echo BIND=0.0.0.0 >> .env`
+- **Docker Desktop on WSL2** — keep `VLLM_WSL2_ENABLE_PIN_MEMORY=1` in `.env`, or
+  the V2 runner aborts with `RuntimeError: UVA is not available`
+- **No compose, or no Docker at all** —
+  [docs/docker.md](docs/docker.md#plain-docker-no-compose) ·
+  [docs/install.md](docs/install.md)
+
+## Which setup do I want?
+
+Three questions, and the answers are the whole of your `.env`.
+
+```mermaid
+flowchart TD
+  Q1{"Who is sending<br/>the requests?"}
+  Q1 -->|"an API backend, a pipeline,<br/>8+ at once"| A["<b>A — batch</b>"]
+  Q1 -->|"one or a few<br/>people chatting"| Q2{"Longest prompt<br/>you will send?"}
+  Q2 -->|"under 64k tokens"| Q3{"Do the answers quote<br/>the prompt back?"}
+  Q2 -->|"up to 150k"| D["<b>D — long context</b>"]
+  Q2 -->|"200k and beyond"| E["<b>E — huge context</b>"]
+  Q3 -->|"no — normal chat"| B["<b>B — single, default</b>"]
+  Q3 -->|"yes — code edits, RAG,<br/>rewrites, translation"| C["<b>C — reproduction</b>"]
+```
+
+Starting from the `.env` you copied in Quick start, which already ships **B**:
+
+| | change in `.env` | start with | what you get |
+|---|---|---|---|
+| **A** | nothing | `--profile batch` | ~1,035 tok/s aggregate at 64 concurrent |
+| **B** | nothing | `--profile single` | 127 tok/s single stream, 64k context |
+| **C** | add `DFLASH_TOKENS=15` | `--profile single` | 381 tok/s while quoting, at 4 slots and 56k |
+| **D** | `SPEC=mtp` and `CTX=long` | `--profile single` | 150k context, ~95-100 tok/s |
+| **E** | add `CTX=huge` | `--profile single` | 240k context, 67 tok/s mixed and 164 while quoting |
+
+Torn between B and C: B is the safe default, and C only pays off when the output
+really does repeat the input — it trades request slots and context for it. D drops
+back to MTP speculation on purpose, because DFlash2 past 64k is worth it only for
+reproduction and loses to `SPEC=mtp CTX=long` about 2:1 on everything else; at E
+the KVarN cache buys the context instead, so DFlash2 stays on. A needs no edit at
+all — batch ignores `SPEC` and says so on startup. Every knob, and what each costs:
+[single-user/README.md](single-user/README.md#if-you-are-the-only-user-do-this) ·
+[batch/README.md](batch/README.md).
+
+On a compute capability 8.6 GPU (RTX 3090-class), `SPEC=mtp CTX=long` and `SPEC=dflash2 CTX=long` run on an int8 KV cache read by the
+[pth-flash-attn](https://github.com/noon-at-cgn/pth-flash-attn) kernel by default (`PTH_FA=1`, source vendored in `pthfa/`): the target and the
+drafter on `--attention-backend CUSTOM --kv-cache-dtype int8_per_token_head`. That needs the package installed (the Docker image has it;
+`bash pthfa/install.sh` in a venv) and the measured setup ([docs/long-context.md](docs/long-context.md#int8-kv-on-the-pth-flash-attn-kernel-pth_fa1-specmtp-or-specdflash2-with-ctxlong)).
+Otherwise the arm keeps its own default, fp8 on FlashInfer on mtp and the FA2 arm below on dflash2, and `PTH_FA=0` restores it. Any other GPU,
+`CTX=fast`, `CTX=huge` and batch mode are unchanged. On the native RTX 3090 (TP=1, 250 W, vLLM 0.31.0, two boots per arm, [#345](https://github.com/syv-ai/HyperQwen/pull/345)),
+`SPEC=mtp CTX=long` decodes 84.7-84.8 tok/s at ~66k and 78.5 at ~100k against 75.5-75.6 and 68.8-68.9 with `PTH_FA=0` (+12.2% and +14.0%), with the same
+cold TTFT at ~66k and a 1.9% smaller KV pool; the ~95-100 tok/s of row D above is the fp8 + FlashInfer arm. Only compute capability 8.6 has been run on a GPU
+(3090 and 3080 here), on vLLM 0.31.0, and the kernel is forward only.
+
+Without the kernel (`PTH_FA=0`, or a launch outside its measured setup), `SPEC=dflash2 CTX=long` runs on fp8 KV with the FlashAttention-2 plugin in `fa2/` by default (`FA2_FP8KV=1`) on an RTX 3090-class
+GPU (compute capability 8.6); on any other GPU the default stays on int8 + Triton with a note, and `FA2_FP8KV=1` opts in on a 4090;
+`FA2_FP8KV=0` restores the int8 + Triton arm. Native installs need `bash fa2/install.sh` once, and the launcher refuses
+to start without it rather than fall back (the Docker image has it). `KV_OFFLOAD_GB` turns the default off with a note;
+an explicit `FA2_FP8KV=1` refuses it, and refuses any other `SPEC`/`CTX`. The evidence is the T4 battery on the native
+3090 ([#153](https://github.com/syv-ai/HyperQwen/issues/153)): on 2026-10-18 (bare metal, 250 W, vLLM 0.31.0) the fp8 + FA2 arm passed every bar against the shipped int8 + Triton arm: GSM8K 0.950 vs 0.955 (n=200), perplexity +0.04%, 0 of 128 residues broken, a 20-minute soak with no restart, decode 54.0 vs 48.2 tok/s at ~66k and 48.2 vs 37.9 tok/s at ~100k (+27%), cold TTFT 75.5 vs 132.3 s and 54.7 vs 130.5 s, and a 3.3% larger pool (140,902 vs 136,429 tokens).
+
+### The numbers behind that
+
+| | **batch** → [batch/](batch/) | **single** → [single-user/](single-user/) |
+|---|---|---|
+| **best for** | API backends, pipelines, many concurrent requests | one or a few people chatting |
+| **64 concurrent** (128 in / 512 out) | **~1,035 tok/s** decode, 948 e2e — ~1,222 with every layer int8 | n/a — 8 slots |
+| **single stream** (C1) | 46 tok/s | **127 tok/s** — 121 on the older MTP path |
+| **quoting its own prompt** | 46 tok/s | **381 tok/s** at 25k context |
+| **prefill**, 1k in | ~1,810 tok/s | ~1,440 — **~1,850-1,940** with `INT8_ACT=int8` |
+| **how** | 16-bit recurrent state, int8 tensor-core GEMMs | 7 drafts proposed per pass, 15 tokens verified per step off the context |
+
+Speculation wins below ~8 concurrent users, plain batching above — earlier on long
+sessions, where a speculating request reserves recurrent-state pages the pool has
+few of ([measurement](docs/long-context.md)). Both modes share one install.
+[Full prefill matrix](batch/README.md#prefill) ·
+[how each number was won](docs/optimizations.md).
+
+## Roadmap: more Qwen models, more cards
+
+The name changed because the scope did. This started as "Qwen3.8-27B on one RTX
+3090" and the README still reflects that, because that is the pair which has been
+measured properly. The plan is to widen both axes. Being specific about what
+transfers, since "supports N models" is easy to claim and expensive to be wrong
+about:
+
+**Portable already — nothing model- or card-specific in it.** The vLLM patch
+series (`patches/`, one line each in [PATCHES.md](PATCHES.md)), the
+KVarN long-context backend, int8 Marlin GEMM layer selection, the SSE keep-alive,
+the engine stall sentinel. These are vLLM fixes that happen to have been written
+here.
+
+**Model-specific, and this is the real work.** The int8-QK prefill attention
+kernel is gated on this checkpoint's exact geometry — `num_heads == 24`,
+`num_kv_heads == 4`, `head_size == 256` — and falls back to FA2 for anything
+else, so a new model gets correctness for free and none of the prefill win until
+the gate is generalized. The 40k-token draft vocabulary is calibrated on this
+model's own output distribution. The DFlash2 drafter is a per-model checkpoint.
+`prepare/` assumes a head layout that only just learned to handle heads in
+different shards ([#120](https://github.com/syv-ai/HyperQwen/issues/120)).
+
+**Card-specific.** The Marlin tune tables are measured on sm86. sm120 (RTX 5090)
+reproduces ([#35](https://github.com/syv-ai/HyperQwen/issues/35)); sm80 runs but
+has an open speculation fault at any k
+([#98](https://github.com/syv-ai/HyperQwen/issues/98),
+[#72](https://github.com/syv-ai/HyperQwen/issues/72)). Multi-GPU works at TP=2
+and TP=4; TP=3 and PP=3 are invalid for this model's head count, which is a
+property of the checkpoint rather than a missing feature.
+
+**What we want next.** Smaller Qwen checkpoints so 16 GB and 12 GB cards get the
+same treatment rather than a shrug; a larger one for 48 GB; the EXL3 route in
+[#103](https://github.com/syv-ai/HyperQwen/issues/103) as a second quantization
+path. If you want a specific model or card prioritized, say so in an issue — the
+order is mostly driven by who turns up with a reproduction.
+
+## Field tests wanted
+
+Every number above is one RTX 3090 at 250 W, shared with training jobs. Every
+row for any other card came from someone else running the harness — so the ask
+here is a protocol rather than "try it and let us know".
+
+**About 30 minutes on one GPU**, most of it unattended. The harness lives in
+the container, so it runs through `compose exec` — on a venv install drop that
+prefix and use `python` instead of `venv/bin/python`:
+
+```bash
+sudo nvidia-smi -pl 250                 # your card's reference wattage; say which
+docker compose --profile single up -d   # first start also prepares the model
+
+docker compose exec single bash bench/run_benchmarks.sh single   # discard: a first run after a start reads 30-50% low
+docker compose exec single bash bench/run_benchmarks.sh single   # keep this one — its ROW lines are the report
+
+docker compose exec single venv/bin/hf download openai/gsm8k --repo-type dataset \
+  --include "main/test-*" --local-dir bench/quality-data/gsm8k
+docker compose exec single venv/bin/pip install pyarrow   # only on images published before 2026-09-21
+docker compose exec single venv/bin/python bench/quality_battery.py mycard --gsm-only
+```
+
+`mycard` is a label you choose for this run (for example `rtx3090-250w`),
+not a model name. Results are saved to `bench/quality-data/result_mycard.json`.
+Use your service name in place of `single` when testing another Compose profile.
+
+Then open a
+[field report](https://github.com/syv-ai/HyperQwen/issues/new?template=field-report.yml).
+The form asks for the six things that make two runs comparable — card, power
+cap, driver, OS or container, commit, which setup letter — because without them
+a number cannot honestly be put next to the row above it. Ran something
+narrower, or with your own client? Post it anyway and say what you skipped; it
+gets listed as an independent report instead of a table row, which is what
+happened to most of
+[docs/reproductions/](docs/reproductions/README.md#results-from-other-hardware).
+
+**Most wanted, in order.** Several of these already have a thread with someone's
+hardware in it — check before you duplicate, and add to theirs if it matches:
+
+| | why it is worth your GPU hour |
+|---|---|
+| **sm90** — H100, H200 | The only architecture here with no datapoint at all. |
+| **sm80** — A100, A30, CMP 170HX | Two owners are mid-bisect on a speculation fault that only their cards produce ([#98](https://github.com/syv-ai/HyperQwen/issues/98), [#72](https://github.com/syv-ai/HyperQwen/issues/72)). A third sm80 box would separate the card from the build. |
+| **Four Ampere cards** | Four sm120 cards are measured ([#105](https://github.com/syv-ai/HyperQwen/issues/105)); nobody has run four 3090s, and two of them already give *less* aggregate throughput than one ([#135](https://github.com/syv-ai/HyperQwen/issues/135)). |
+| **12 GB cards, on the harness** | Two 3060s do serve this model ([#68](https://github.com/syv-ai/HyperQwen/issues/68)), reported with their owners' own clients — so the numbers cannot be set against the rows above. A harness run on that pair is most of what decides whether smaller Qwen checkpoints are worth preparing. |
+| **vLLM 0.32.0** ([docs/vllm-0.32.md](docs/vllm-0.32.md); 0.31.0 in [docs/vllm-0.31.md](docs/vllm-0.31.md), 0.30.0 in [docs/vllm-0.30.md](docs/vllm-0.30.md), 0.29.0 in [docs/vllm-0.29.md](docs/vllm-0.29.md)) | The pin this branch carries, measured on a native 3090 and a native 4090; the harness on it from any other card is the missing datapoint. |
+
+**What you get:** the run published in
+[docs/reproductions/](docs/reproductions/README.md) with your raw output and
+credit, the gotchas your platform exposes written into
+[docs/gotchas.md](docs/gotchas.md), and an honest account of what your hardware
+does badly — historically the more useful half.
+
+**Rather give hardware or money than time?** A box we can reach, or credits:
+open an issue titled "compute offer". Otherwise
+[ko-fi.com/mhenrichsen](https://ko-fi.com/mhenrichsen) buys hours on cards this
+project does not own, and those runs get written up here like any other
+reproduction.
+
+## Documentation
+
+Everything that used to be in this README, in the folder it belongs to.
+
+**Running it**
+
+| | |
+|---|---|
+| [batch/](batch/) · [single-user/](single-user/) | The two serving modes: full benchmark tables, every env knob, systemd units. |
+| [docs/install.md](docs/install.md) | The bare-metal venv install, for when you are not using the container. |
+| [docs/docker.md](docs/docker.md) | The container image, and an independent WSL2 reproduction. |
+| [docs/clients.md](docs/clients.md) | Pointing coding agents and OpenAI-protocol clients at the server. |
+| [docs/multi-gpu.md](docs/multi-gpu.md) | What transfers to a second card, and which tensor-parallel shapes this model allows. |
+| [docs/third-party-checkpoints.md](docs/third-party-checkpoints.md) | Serving a checkpoint other than the base model, and what has to be re-prepared. |
+
+**How it works, and how fast**
+
+| | |
+|---|---|
+| [docs/optimizations.md](docs/optimizations.md) | Every optimization in full: why it was needed, what it measured, which patch implements it — including what each step buys in tokens per second, the two speculative-decoding modes, and the lookup drafter. |
+| [docs/benchmarks.md](docs/benchmarks.md) | The comparison against ninfer-3090, and quality per configuration. |
+| [docs/quality.md](docs/quality.md) | IFBench, perplexity and GSM8K per configuration. |
+| [docs/long-context.md](docs/long-context.md) | 262k context with the KVarN 4/2-bit KV cache, `CTX=huge` with DFlash2 at 240k, vLLM's own per-token-head KV modes, the int8 KV route on the pth-flash-attn kernel (`PTH_FA=1`, `SPEC=mtp` or `SPEC=dflash2` at `CTX=long`), and the experimental int4 route. |
+| [docs/reproductions/](docs/reproductions/README.md) | Other people's hardware running this stack, reports and full write-ups. |
+| [docs/gotchas.md](docs/gotchas.md) | Things that each cost us hours — read before debugging something that looks like a vLLM bug. |
+
+**Building it**
+
+| | |
+|---|---|
+| [PATCHES.md](PATCHES.md) | One line per patch in `patches/`: what it does, its upstream reference, and what retires it. |
+| [docs/spec-decode-scratch-token-units.md](docs/spec-decode-scratch-token-units.md) | Why the speculative-decode scratch buffer is sized in tokens, and the int4 MQ-3D verify kernel — the design notes behind two of the patches. |
+| [prepare/](prepare/) | The one-time model-preparation scripts (also `docker compose run --rm prepare`). |
+| [drafter/](drafter/) | How the draft vocabulary, the int4 drafters and the DFlash2 requantization were built — including what did not work. |
+| [kvarn/](kvarn/) | The KVarN 4/2-bit KV cache port. |
+| [fa2/](fa2/) | The fp8-KV FlashAttention-2 source port (optional; `bash fa2/install.sh` builds it, `FA2_FP8KV=1` selects it). |
+| [pthfa/](pthfa/README.md) | The vendored source of [pth-flash-attn](https://github.com/noon-at-cgn/pth-flash-attn) v0.1.0, the int8-KV attention kernel (optional; `bash pthfa/install.sh` builds it, `PTH_FA=1` selects it, and it is the default for `SPEC=mtp CTX=long` and `SPEC=dflash2 CTX=long` on a compute capability 8.6 GPU). |
+| [xgrammar/](xgrammar/) | A source build of xgrammar with the bounded-string fix for Qwen tool calls (`bash xgrammar/install.sh`); without it a tool schema's `maxLength` drops decode to ~7 tok/s under `TOOL_STRICT=parameter`. |
+
+## License
+
+Apache-2.0, same as the model.
+
+> **New here?** Start at [docs/quickstart.md](../docs/quickstart.md) for the
+> canonical Docker path, then come back. Setup steps live in [## Setup](#setup) below.
+
+
+# Batch mode
+
+For serving many concurrent requests: API backends, data processing pipelines,
+eval runs. Tuned for aggregate tokens per second, not per-request latency.
+
+## Benchmarks
+
+`vllm bench serve`, random dataset, 256 requests, RTX 3090 at 250 W, default
+config (fp16 recurrent state, int8 activations on the MLP GEMMs):
+
+| workload | steady-state decode | output tok/s (e2e) | median TPOT | median TTFT |
+|---|---|---|---|---|
+| 256/256, 1 concurrent | 46 | 46 | 21.7 ms | 230 ms |
+| 128/512, 64 concurrent | **~1,094** | 942 | 62.2 ms | 3.0 s* |
+| 256/256, 64 concurrent | ~1,094 | 673 | 81.4 ms | 3.4 s* |
+
+(Baseline measured on vLLM 0.27.1; re-run after the v0.31.0 upgrade -- these figures now predate four pins. Two passes each were
+within 0.4% of one another. The 128/512 row read 876 when this repo was first published — the difference is everything that landed
+since. `INT8_LAYERS=.` — int8 activations on every linear, not just the MLP — reaches
+**1,042 tok/s** e2e and ~1,222 steady-state decode, but needs a `GPU_UTIL` below 0.972 (batch's default, 0.94 on
+0.31, clears its worst prefill step by 134-176 MiB): it OOMs inside the GDN chunk kernel at 0.28's 0.972. Quality cost of that row: +3.7% perplexity,
+[docs/quality.md](../docs/quality.md).)
+
+*TTFT at saturation is queue time — the bench fires all requests at once.
+
+"Steady-state decode" is what the engine logs as generation throughput once
+all 64 requests are resident and no prefill is interleaved; the e2e number
+includes everybody's prefill and the ramp. Older configs, same protocol:
+
+| config | e2e 128/512 | e2e 256/256 | steady decode |
+|---|---|---|---|
+| W4A16, fp32 state (only 37 of 64 requests could run) | 516 | 393 | ~585 |
+| W4A16, fp16 state | 707 | 491 | ~830 |
+| int8 activations, gate/up only (`INT8_LAYERS=gate_up`) | 787 | 572 | ~930 |
+| int8 activations, MLP (default) | 876 | 642 | ~1,050 |
+| int8 activations, all linears (`INT8_LAYERS=.`) | 1,025 | 752 | ~1,150 |
+
+Quality of each row is in the [quality tables](../docs/quality.md).
+
+Cohort protocol on realistic prompts (C concurrent chat requests, 1,024-token
+answers, model-default sampling; comparable to the
+[single-user tables](../single-user/README.md)):
+
+| Cohort | e2e throughput | decode throughput | mean TTFT |
+|---|---|---|---|
+| C1 | 45.4 tok/s | 45.6 tok/s | 110 ms |
+| C2 | 81.8 tok/s | 83.7 tok/s | 197 ms |
+| C4 | 153.8 tok/s | 162.7 tok/s | 343 ms |
+| C8 | 298.4 tok/s | 321.0 tok/s | 638 ms |
+
+Below ~C8, single-user mode's speculative decoding is faster (2.5× at C1 with
+the fast variant); batch mode pulls ahead from C8 and keeps scaling to C64.
+Re-measured after the single-user sampler / attention patches went in
+(2026-08-18): 882 / 635 tok/s e2e at 64 concurrent, cohorts 44.7 / 82.6 /
+165.6 / 298.5 — unchanged within noise; the patches only touch small-batch
+paths.
+
+### Prefill
+
+Measured with 1-token outputs so it's pure prompt processing. Batch mode
+default (int8 tensor cores on the MLP GEMMs):
+
+| input length | conc 1 | conc 4 | conc 8-16 | single-request TTFT |
+|---|---|---|---|---|
+| 1k | 1,812 tok/s | 1,820 | 1,806 | 0.56 s |
+| 4k | 1,758 | 1,757 | 1,747 | 2.3 s |
+| 16k | 1,595 | 1,601 | 1,599 | 10.3 s |
+| 64k | 1,182 | 1,184 | — | 55 s |
+| 100k | 997 | — | — | 103 s |
+
+Single-user mode (dflash2 k=15, `PREFIX_CACHE=1`), re-measured 2026-09-01 on
+the **seeded** protocol — `bench/run_benchmarks.sh` now passes a distinct
+`--seed` per call; the unseeded harness this table was first built with let
+the prefix cache partially serve repeated bench prompts, which read one config
+15-20% low and another 3× high, so the old W4A16 rows here are not comparable:
+
+| input length, conc 1 | W4A16 (mode default) | `INT8_ACT=int8` (all linears) |
+|---|---|---|
+| 1k | 1,437 tok/s (TTFT 0.71 s) | **1,845** (0.55 s) |
+| 4k | 1,494 (2.7 s) | **1,937** (2.1 s) |
+| 16k | 1,410 (11.6 s) | **1,791** (9.1 s) |
+| 51k | 1,200 (42.6 s) | **1,423** (35.8 s) |
+
+Decode at C1 is unchanged by the int8 path (122±5 vs 121 tok/s over repeats);
+quality is the documented int8 trade
+([docs/optimizations.md](../docs/optimizations.md), GSM8K 95.0 vs 96.5, PPL
++4.1%). On vLLM 0.27.1, `SPEC=off` and `PREFIX_CACHE=0` (caching off) each measured
+~20% *slower* prefill than the dflash2 defaults — the drafter rides the V2 model runner and
+the prefix-cache path is the fast allocation path — so neither is a "lean" prefill
+configuration.
+
+Two things to plan capacity around. First, concurrency does nothing for
+prefill: chunked prefill feeds everything through the same 2,048-token
+per-step budget, so prompt processing is a fixed resource the whole server
+shares, and queueing is linear (four 16k prompts at once means the last one
+waits ~40 s). Second, the falloff with length is mild — ~45% from 1k to 100k
+on the int8 path, ~34% on W4A16 — because just 16 of 64 layers pay quadratic
+attention; this is one of the places the hybrid architecture genuinely helps.
+
+### Raw-engine cells (no speculation, no prefix caching, vLLM 0.27.1)
+
+For apples-to-apples comparison with other 3090 stacks, the standard "raw"
+protocol people ask for: `SPEC=off PREFIX_CACHE=0`, 7,681-token prompts,
+511-token generations (8,192 tokens resident per request), C simultaneous
+requests, distinct seeds per call. PP = total prompt tokens / wall time of
+1-token-output runs at the same concurrency; TG = C × 1000 / mean TPOT
+(true tokens per second — with speculation off every round emits exactly one
+token per request). RTX 3090 at 250 W, this checkpoint (W4A16-AutoRound-fast), vLLM 0.27.1.
+`PREFIX_CACHE=0` is caching off, as it was on 0.27.1.
+
+| cell | W4A16 raw: PP / TG-agg | + server-side int8 (`INT8_ACT=int8 PREFILL_ATTN=int8`): PP / TG-agg |
+|---|---|---|
+| C1 | 1,172 / 46.9 tok/s | **1,849** / 45.2 |
+| C4 | 1,168 / 94.8 | **1,858** / 110.1 |
+| C8 | 1,169 / 111.5 | **1,911** / 143.7 |
+
+PP is flat in C because chunked prefill feeds every request through the same
+per-step token budget. The int8 column is still "raw" by the usual definition
+— no draft model, no cache reuse — it is a server-side kernel choice, the
+same class of decision as picking a weight quant. A sanity check for anyone
+comparing TG numbers: at true spec-off, `TG per stream x round latency = 1`
+token per round. A C1 cell reporting ~110 TG at a ~45 ms round is emitting
+~5 tokens per round — that is a speculative path still active (this repo's
+own `SPEC=off` used to silently fall through to MTP; see the launcher
+comment), not raw decode. Raw single-stream decode for 16 GB of weights on a
+936 GB/s card is bounded near ~50 tok/s.
+
+## Shared prompts: `PREFIX_CACHE=1`
+
+If every request carries the same system prompt, few-shot block or document — the normal
+shape of an API backend — you want prefix caching (`--enable-prefix-caching
+--mamba-cache-mode align`). `PREFIX_CACHE=1`, the default, passes those flags, and
+`PREFIX_CACHE=0` passes `--no-enable-prefix-caching` and turns it off. The attention KV
+of the shared prefix is reused and the recurrent (GDN) state resumes from the last cached
+block boundary, so the prefix is prefilled once instead of once per request:
+
+| 64 requests sharing a 5,820-token system prompt, concurrency 32 | wall | output | median latency | p90 |
+|---|---|---|---|---|
+| default on vLLM 0.27.1 (caching off) | 222.2 s | 10.6 tok/s | 94.9 s | 155.3 s |
+| `PREFIX_CACHE=1` | **16.9 s** | **133.9 tok/s** | **8.0 s** | **15.2 s** |
+
+On vLLM 0.27.1 it cost ~14% of the KV pool (223,821 → 193,298 tokens, 1.29x concurrency at
+150k instead of 1.49x) — one extra recurrent-state page per request — and nothing on
+workloads with no shared prefix (870 tok/s on the 128 in / 512 out row, i.e. unchanged).
+Answers are identical; the state resume is exact. On 0.30 (a 4090 under WSL2,
+`GPU_UTIL=0.91`) caching cost 1.5% of the pool (212,041 → 208,762 tokens).
+
+One failure mode to know about on mixed workloads (a long-running conversation
+plus unrelated traffic on the same server): a hybrid cache hit needs the mamba
+group's retained state snapshot *and* the attention blocks, and stock vLLM's
+eviction order kills the snapshot first — one lost block and the whole
+conversation re-prefills at 0% hit even though its attention KV is fully
+cached. `patches/mamba-align-checkpoint-order.patch` (in the standard patch
+set, default off) fixes the ordering when enabled with
+`VLLM_MAMBA_ALIGN_KEEP_CHECKPOINTS=1`; mechanism, measurements and the
+capacity caveat are in [docs/gotchas.md](../docs/gotchas.md) #49.
+
+## Setup
+
+Do the [common setup](../docs/install.md) first (venv, model download,
+requantization, vLLM patches). Then:
+
+```bash
+bash batch/start_qwen.sh
+```
+
+Or in Docker (image build, model prep and the same knobs via `.env` — see the
+[docs/docker.md](../docs/docker.md)):
+
+```bash
+docker compose --profile batch up -d
+```
+
+Or as a service:
+
+```bash
+mkdir -p ~/.config/systemd/user
+cp batch/qwen-serving.service ~/.config/systemd/user/
+systemctl --user daemon-reload
+systemctl --user enable --now qwen-serving
+loginctl enable-linger $USER
+```
+
+First start takes a few minutes (torch.compile, CUDA graph capture, flashinfer
+JIT). Watch `qwen.log` in the repo root; it's up when you see
+"HTTP server started".
+
+## Knobs
+
+All overridable as env vars, defaults in the script:
+
+| var | default | notes |
+|---|---|---|
+| `PREFIX_CACHE` | 1 | 1 = prefix caching on (`--enable-prefix-caching --mamba-cache-mode align`, see above), 13x on shared-prompt workloads against caching off on vLLM 0.27.1. 0 = `--no-enable-prefix-caching`, for raw-engine benchmarks, A/Bs that must not reuse a prefix, quality comparisons and debugging the cache path. It costs every follow-up turn and shared prompt a full prefill. Other values refuse to boot. The last `--enable-prefix-caching` / `--no-enable-prefix-caching` in `EXTRA_ARGS` wins |
+| `KV` | `fp8` | `kvarn` switches to the KVarN 4/2-bit KV cache (run `bash kvarn/install.sh` once): 262k context, ~2× the token pool, slower decode — see the main README's "262k context" section |
+| `INT8_ACT` | `int8` | int8 activations on the Marlin GEMMs (int8 tensor cores, weights stay int4). Empty string = plain W4A16 |
+| `INT8_LAYERS` | `mlp` | regex on the layer name that gets int8 activations. `gate_up` for the gentle variant, `.` for everything, or a hand-picked list from `bench/act_calib.py` |
+| `MAX_SEQS` | 64 | scheduler slots; with fp16 state ~70 short requests fit the page pool |
+| `MAX_LEN` | 150000 | max context. Raising it much past this fails startup, the pool can't hold a longer request |
+| `TOOLS` | 1 | tool/function calling (`--enable-auto-tool-choice --tool-call-parser`). `TOOL_PARSER` (`qwen3_coder`) must match the XML call format this model's chat template emits — `hermes` parses the JSON a Qwen model does *not* produce here, and fails silently. 0 = off, and `tool_choice: "auto"` then 400s |
+| `KV_OFFLOAD_GB` | unset | N = a CPU tier of N GiB of pinned RAM behind the GPU prefix cache (`--kv-offloading-size N`, vLLM's OffloadingConnector): a prefix the GPU pool evicted comes back by a PCIe load instead of a recomputed prefill, and a preempted request resumes from it. Pinned in full at boot, in a file in `/dev/shm` that must fit there (gotcha 62). Size it in tokens, not GiB: a tier token costs ~2.3x a pool token under MTP because each block carries a recurrent-state snapshot (gotcha 38). Check it works on `/metrics`: `vllm:kv_offload_*_bytes_total` grow both ways. Measured with `PREFIX_CACHE=1` (align mode). On 0.31 size it above what it holds: a tier that fills while a request is still running loses chunks the next lookup needs (`docs/vllm-0.31.md`). An explicit flag in `EXTRA_ARGS` wins |
+| `TOOL_STRICT` | parameter | vLLM 0.31's `--tool-strict-level`. `parameter` holds every tool call to the tool's argument schema, as 0.30 did; upstream's default `auto` does so only for tools that send `strict: true`, so a forced call to a tool with no parameters invented arguments (20 of 20 seeds) where 0.30 sent `{}`. `auto` restores upstream's default |
+| `PORT` | 18020 | |
+| `PRINT_ARGV` | 0 | 1 = print the `vllm serve` argv, one argument per line, and exit 0 instead of starting the server. Every profile check, default and warning runs first, so it is a dry run that needs no GPU |
+| `GPU_UTIL` | 0.94 | do not raise: on 0.31, 0.95 runs out of memory when 64 new prompts land in one step (the launcher comment has the measurement); 0.972, the 0.28 default, OOMs in warmup on vLLM 0.29 (#182; the ladder is in `docs/vllm-0.29.md`). Use 0.93 when you want `prompt_logprobs` (quality checks) |
+
+## Verify you're getting the numbers
+
+```bash
+bash verify.sh                       # install + patches + model + live server sanity
+bash bench/run_benchmarks.sh batch   # the tables above (--prefill / --long for the rest)
+```
+
+or by hand:
+
+```bash
+OPENAI_API_KEY=$(cat api_key.txt) venv/bin/vllm bench serve \
+  --host 127.0.0.1 --port 18020 \
+  --model models/Qwen3.8-27B-W4A16-AutoRound \
+  --served-model-name qwen3.8-27b \
+  --dataset-name random --random-input-len 128 --random-output-len 512 \
+  --num-prompts 256 --max-concurrency 64
+```
+
+Run it twice, keep the second number. The first run after a restart includes
+JIT warmup and reads 30-50% low. Then run `bench/quality_battery.py` — a
+throughput number from a server that emits garbage is worth nothing, and the
+int8 path taught us that the hard way.
+
+# bench/
+
+Tests, benchmarks, reproducers and tools for this stack. Each script's docstring or header
+says how to run it. This page says which scripts are tests, what each one needs, and what
+its exit code means. CI runs the ones that `.github/workflows/patch-integrity.yml` and the
+`Dockerfile` name.
+
+Under Docker Desktop (WSL2) the VM's clock can run fast against the host's, by 8.3% on one
+RTX 3090, and can change rate partway through a run. Durations timed there read long by up to
+that much, so compare A/B arms that ran interleaved in one sitting rather than absolute numbers.
+
+## Exit codes
+
+| exit | meaning |
+|---|---|
+| 0 | The check ran and passed, or the script is a measurement. |
+| 1 | The check ran and the verdict is FAIL. |
+| 2 | The run was invalid, so there is no verdict: zero eligible cases, an overflowed tier, no request that succeeded. The script refuses to pass. |
+| 3 | The test's own negative control failed, so no verdict from it can be trusted. |
+
+- A measurement prints numbers and exits 0 whatever they are. A measurement that cannot run does not exit 0.
+- A script that does not detect an invalid run crashes on it, for example with no server. A Python traceback exits 1, so exit 1 is not always a verdict.
+- A designed skip (a GPU without the feature, a kernel without the path under test) prints `SKIP` or `skip:` and exits 0.
+- A new script follows this table and gets a row below.
+
+## Files
+
+Needs: **CPU** is Python 3 and its standard library. **torch** is a CPU torch wheel. **image**
+is the patched vLLM venv (the Docker image or `venv/`), with no GPU. **GPU** is the patched
+venv on a CUDA card. **server** is a running server at `VLLM_API` (a trailing `/v1` is fine), else on
+`PORT` (default 18020), with the key from `OPENAI_API_KEY`, `VLLM_API_KEY` or `api_key.txt`, in that
+order (`bench/harness.py`). The model is `VLLM_MODEL` if set, else the server's own: the Python scripts name
+none, and the `.sh` scripts ask `/v1/models`. The `.sh` measurements take `PORT` and ignore `VLLM_API`;
+`run_benchmarks.sh` and `warmup.sh` also take `HOST`. **model** is the checkpoint under `models/`.
+
+| file | kind | needs | exit | what it does |
+|---|---|---|---|---|
+| `act_calib.py` | measurement | GPU, model | 0 | Error that int8 activations add to each linear layer. Picks `INT8_LAYERS`. |
+| `test_dflash_context_capacity.py` | test | image, no GPU | 0 or 1 | DFlash constructor rejects oversized target contexts and reserves its fixed lookahead without rewriting draft configuration. |
+| `test_doctor.py` | test | CPU, bash | 0 or 1 | Doctor health failures, configuration-pipeline failures and redacted output. |
+| `api_smoke.py` | smoke test, run by hand | server | 0 if all 12 features pass, 2 if no request reaches a server, else 1 | Request-level API features: logprobs, n, stop, seeds, structured output, penalties, streaming, thinking. |
+| `bugb_sweep.py` | reproducer | server, model | 0, or 1 if a length is broken | The prompt lengths you give, against the broken-length defect (gotcha 37). |
+| `code_corpus.py` | library | CPU | n/a | Source selection for quality, calibration and long LABD corpora; see `CODE_CORPUS_DIR` below. |
+| `conc_ladder.py` | measurement | server | 0 | Decode tok/s per stream at N=1..8, with passes, preemptions and KV occupancy. `--salt S` fixes the prompts across boots for an A/B. |
+| `concurrent_collapse.py` | reproducer | server | 0, or 1 if a trial collapsed or a request errored | The "!!!!" collapse from #208. |
+| `demo/` | demo | Node | n/a | The canvas renderer for the README video. See `demo/README.md`. |
+| `demo_capture.py` | demo | server, frozen LABD corpus | 0, 2 if the corpus is missing, blank or too short | Records one lane of the demo video: each token and the time it arrived. |
+| `test_demo_corpus.py` | test | CPU | 0 or 1 | The demo rejects invalid corpora before requests and sends the frozen document to the copy task. |
+| `harness.py` | library | CPU | n/a | How the scripts reach the server: the key, the URL, the model, the request, the stream and `/metrics`. For the bash scripts, `python3 bench/harness.py spec` prints the drafts and accepted-token counters and `model` the served name. |
+| `interleave_dose.py` | measurement | server | 0 | Prefix reuse against a dose of interleaved traffic, with the single-conversation control. |
+| `labd_accept.py` | measurement | server | 0, or 1 if the server ignores `return_tokens_as_token_ids` | Teacher-forced tokens per step for lookup-augmented drafting. |
+| `labd_bench.py` | measurement | server | 0 | Six long-context greedy tasks: decode speed and tokens per step. |
+| `labd_corpus.py` | library | CPU | n/a | Reuses a nonblank frozen corpus without rewriting it, or builds this checkout's docs on first run. A missing `labd_corpus_long.txt` must be built with `make_long_corpus.py`. A blank frozen head is refused even when a long corpus has a nonblank source tail. |
+| `labd_soak.py` | test | server | 0 or 1 | The long verify block at batch > 1. |
+| `make_long_corpus.py` | data tool | `~/bench/labd_corpus.txt`, vLLM source | 0, or 1 if an input is missing or blank | Builds the long-context LABD corpus without extending a blank frozen head. |
+| `mq3d_capacity_property.py` | test | CPU | 0, 1, 2 if no batch was eligible, 3 if `--mutate` did not break the property | The int4 3D scratch capacity property. `--mutate seq-rows` is its negative control and exits 0 when it breaks the property. |
+| `mq3d_layer2_oracle.py` | test | GPU | 0 or 1 | Independent Layer-2 oracle for the int4 3D scratch patch. Writes `mq3d_layer2_verdicts.jsonl` beside itself unless `ORACLE_OUT` is set. |
+| `mq3d_layer2_verdicts.jsonl` | data | | | The oracle's records from the 4090 run. |
+| `mq3d_layer2_verdicts-3090.jsonl` | data | | | The oracle's records from the 3090 rerun, with the shipped patch's sha. |
+| `mq3d_scratch_pool_test.py` | test | image | 0 or 1 | The int4 3D scratch pool, on CPU tensors. |
+| `needle_reuse.py` | test | server | 0 or 1 | The answer lives inside the reused prefix. |
+| `needle_test.py` | probe | server | 0 if RETRIEVED, 1 if MISSED | A passcode at a depth in a long cold prompt. |
+| `prefill_ab.sh` | measurement | GPU, model | 0, or 1 if it cannot start its server | Boots a server with an env set and measures the prefill rows. |
+| `prefix_alternation.py` | reproducer | server | 0, 1 if the arm reproduces the defect, or 2 if it checked no turn | Prefix reuse under two alternating conversations. |
+| `prompts_real.jsonl` | data | | | The realistic prompts that `run_benchmarks.sh`, `real_rep.sh`, `prefill_ab.sh` and `act_calib.py` read. |
+| `quality_battery.py` | quality measurement | server, `bench/quality-data/`, code source for PPL | 0, 1 if an input is missing, 2 for invalid arguments or an empty GSM8K dataset | Perplexity on three corpora and GSM8K accuracy; reports the actual number of evaluated questions. PPL requires a code source selected by `CODE_CORPUS_DIR` / checkout venv / active-install fallback; `--gsm-only` does not need vLLM locally. |
+| `real_rep.sh` | measurement | server, model | the last repeat's exit | The C1 row of `run_benchmarks.sh`, repeated. |
+| `replay_offload_serve.py` | reproducer | server with an offload tier | 0 if SERVED, 1 if NOT-SERVED, 2 if invalid (missing corpus/metrics, counter reset, tier overflow, request failure or X not evicted) | Whether a fast replay loads bytes from the CPU offload tier. Thinking is off; streams without content have no TTFT verdict. A fast replay without loaded bytes is `INVALID-NOT-EVICTED`: adjust the pool/evictors before drawing a conclusion. |
+| `residue_sweep.py` | reproducer | server, model | 0, or 1 if a residue is broken | One prompt for each length residue mod 128. |
+| `run_benchmarks.sh` | measurement | server, model | 0, or 1 if there is no server | The README numbers. |
+| `seat_ttft.py` | measurement | server | 0, or 2 if every request failed | Cold and warm TTFT at N=1. |
+| `spec_attn_ctx_scan.py` | measurement | GPU | 0 | Verify attention cost against context length. |
+| `t4_battery.py` | driver, run by hand | GPU, server (it boots its own), model, `bench/quality-data/`, both LABD corpora | 0 if every bar passes (also with one arm, where the cross-arm bars are n/a), 1 if a bar fails, 2 if a bar had no data | The T4 battery (#153): `SPEC=dflash2 CTX=long` int8 + Triton against `FA2_FP8KV=1` (`--arms int8,fp8fa2`, the default) and the `PTH_FA=1` int8 kernel arm (`--arms int8,pth`: the same bars against int8, soak on pth), with quality, residue (cold boot), decode at ~60k and ~90k (opt-in ~149k) and a soak, on each boot's server identity (any PID or EngineCore change, or a death line in the log, fails the cell). `--help` lists the bars; `--dry-run` prints the plan and needs no GPU. |
+| `test_bench_sse_keepalive.py` | test | image | 0 or 1 | `vllm bench serve` against a server that sends an SSE keep-alive. |
+| `test_conc_ladder_salt.py` | test | CPU | 0 or 1 | `conc_ladder.py --salt` against a stub server: the same prompts on a second run, and the prefix-cache hit reported. |
+| `test_chat_hardening.py` | test | CPU | 0 or 1 | Explicit/default template scope, path deduplication and help without writes. |
+| `test_gdn_ba_lora.py` | test | image | 0 or 1 | CPU/source check of the GDN projection gate and LoRA dispatch, plain padding numerics and fake output shapes. |
+| `test_fa2_slab_plan.py` | test | CPU | 0 or 1 | Bounded K/V slab coverage, causal alignment and fixed workspace size. |
+| `test_fa2_slab_dispatch.py` | test | CPU | 0 or 1 | Opt-in dispatch, workspace sharing and fallback for decode, capture and unsupported inputs. |
+| `test_fa2_slab_gpu.py` | kernel test | sm86 GPU, installed PTH/vLLM/FA2 | 0 or 1 | Explicit `--allow-gpu`: slab attention against full FA2 and FP32, including paged layouts and stable LSE merging; `--benchmark` adds timings. See [the adapter notes](../pthfa/LOCAL_CHANGES.md). |
+| `test_harness.py` | test | CPU, bash | 0 or 1 | `harness.py` against a stub server, including refusal of SSE streams closed before `[DONE]`. Its key chain is checked against `resolve_api_key.sh`. |
+| `test_kv_cache_seat_budget.py` | test | image | 0 or 1 | The KV cache seat budget line (`kv-cache-seat-budget.patch`) against five measured boots, with vLLM's own spec classes. |
+| `test_kvarn_recycled_pages.py` | test | image | 0 or 1 | KVarN's recycled-page drop (#208). |
+| `test_labd_bench_clock.py` | test | CPU | 0 or 1 | `labd_bench.py` against a stub server, with the wall clock stepped back: TTFT and decode rate as the stub served them. |
+| `test_labd_corpus.py` | test | CPU | 0 or 1 | LABD corpus discovery/reuse, blank frozen heads, and rejection in benchmarks, soak and sweeps before requests or tokenizer loading. |
+| `test_long_corpus.py` | test | CPU | 0 or 1 | Explicit/checkout/fallback source selection without importing vLLM, missing-source/cohort refusals and byte-preserved frozen heads. |
+| `test_lookup_kernels.py` | kernel test | GPU | 0 or 1 | The LABD kernels against a Python reference. |
+| `test_marlin_int8_asym.py` | kernel test | GPU | 0 or 1 | Marlin W4A8-INT8 with zero points against W4A16. |
+| `test_model_verification.py` | test | CPU | 0 or 1 | Model verification and selection. Cuts a heredoc out of `verify.sh`. |
+| `test_alt_wsl_gpu_util.sh` | test | CPU, bash, tar | 0 or 1 | `single-user/alternative.sh` defaults `GPU_UTIL` to 0.95 natively and 0.93 under WSL2 (vLLM sees 22.75 GiB of a 3090 there, #401); an explicit value wins in both. Faked with `WSL_DISTRO_NAME`, stub `vllm`, `PRINT_ARGV=1`. |
+| `test_no_key_bind.sh` | test | CPU, bash, tar | 0 or 1. Skips under `/.dockerenv`. | The `--host` each launcher binds, with and without a key (#204). Cuts a block out of `verify.sh` and evaluates it. |
+| `test_offload_mamba_swa_boundaries.py` | test | image, CPU only | 0 or 1 | Actual native store masks and CPU-manager lookup retain SWA history at Mamba replay boundaries under sparse retention. |
+| `test_pin_bump.py` | test | CPU, git | 0 or 1 | Missing-pattern/co-pin rejection without partial edits; every target updated on valid bumps, future repo pins, Python-only FlashInfer pin and dry runs. |
+| `test_prefill_attn_bigpool.py` | kernel test | GPU | 0 or 1 | int32 overflow in the int8 prefill kernel on a large pool (#86). |
+| `test_prepare_crash.py` | test | torch and the prepare stack | 0 or 1 | Crash injection for the model preparation scripts (#195). Cuts a heredoc out of `docker/prepare.sh`. |
+| `test_prepare_state.py` | test | CPU | 0 or 1 | `state()` in `docker/prepare.sh` on torn files (#195). Cuts a heredoc out of `docker/prepare.sh`. |
+| `test_port_paths.py` | test | CPU, bash, git | 0 or 1 | Export, port drift and triage against a real checkout with spaces in its path. |
+| `test_quant_schema.py` | test | torch and the prepare stack | 0 or 1 | What `prepare/quant_schema.py` writes for every in-place quant script: the packed tensors and their scale dtype, the killed-run check, the index entries, the config group. |
+| `test_quality_battery.py` | test | CPU | 0 or 1 | Quality CLI help/validation without optional dependencies, GSM8K sample accounting and empty-data refusal. |
+| `test_quant_scale_views.py` | test | image (CPU), GPU optional | 0 or 1 | Scale views preserve shared hybrid pages and existing scales for INT4/INT8/FP8, HND/NHD and storage offsets; PTH_FA inheritance; `--device cuda:0` also checks the actual INT8 writer. |
+| `test_replay_offload.py` | test | CPU | 0 or 1 | Replay verdicts on CPU stubs: eviction, TTFT and byte deltas, fresh/legacy counters, exact metric families and interrupted requests. |
+| `test_generation_state.py` | test | CPU | 0 or 1 | Resume after torn JSON/UTF-8 tails, record-shape refusal, process exclusion before engine startup, and lock release on exceptions/process exit. |
+| `test_spec_decode_attn.py` | kernel test | GPU | 0 or 1 | The split-KV spec-decode attention against a reference. The timing rows are informational. |
+| `test_spec_decode_bigpool.py` | kernel test | GPU | 0 or 1. The fp8 part skips below sm89 or without the fp8 path. | int32 overflow in `_spec_attn_partial` on a large pool (#86). |
+| `test_spec_decode_fp8.py` | kernel test | GPU, sm89+ | 0 or 1. Skips below sm89 or without the fp8 path. | The fp8 path of the split-KV kernel. The timing rows are informational. |
+| `test_t4_battery.py` | test | CPU, bash | 0 or 1 | `t4_battery.py`'s dry-run plan, parsers, restart gate (on a fake `/proc`), verdict, and one run against a stub launcher. |
+| `test_vision_knobs.py` | test | CPU, bash | 0 or 1 | All three launchers' Vision limits, CPU tower-offload budget and boolean controls against a stub vLLM. |
+| `test_vision_smoke.py` | test | CPU, bash | 0 or 1 | Pixel-dependent Vision verification against stub HTTP servers, including a server that only answers text. |
+| `tune_gdn.py` | measurement | GPU | 0 | The Gated DeltaNet decode kernel over block sizes and warp counts. |
+| `verbatim.py` | library and test | CPU | 0 or 1 | How much of an answer copies its source. The two sweeps use it. Run alone, it tests itself. |
+| `vision_smoke.py` | smoke test | server with `VISION=1` | 0 if both color orders are read, 1 if a response fails, 2 if no server answers | Two different orders of three large color panels, the same question; expected color names/order appear only in the pixels. Run by `VISION=1 bash verify.sh`; a setting in the server's environment alone does not enable this check. |
+| `warmup.sh` | lifecycle | server | 0 or 1 | Warms the serving path after boot. `single-user/qwen-server.sh` runs it when `WARMUP=1`. |
+
+For comparable code scores, set `CODE_CORPUS_DIR` to the same fixed **vllm package
+directory** for every arm, for example `CODE_CORPUS_DIR=/path/to/fixed/vllm`.
+`quality_battery.py`, `make_long_corpus.py` and `act_calib.py` use that tree. Without
+an explicit selection, they prefer `<repo>/venv/lib/python3.12/site-packages/vllm`
+to preserve existing inputs, and discover the active Python's vLLM only when that
+directory is absent. The chosen directory and file/window counts are printed.
+An invalid explicit directory never falls back; missing source or eligible PPL
+windows is an error with instructions to set `CODE_CORPUS_DIR`. Use one immutable
+source tree for comparisons across vLLM versions. `--gsm-only` skips this selection.
+
+One test outside `bench/` gates CI too:
+
+| file | kind | needs | exit | what it does |
+|---|---|---|---|---|
+| `kvarn/tests/test_kvarn_fp16_dequant_torch.py` | test | torch | 0 or 1 | Numerics of `KVARN_FP16_DEQUANT`. |
+
+## Async Mamba KV sizing
+## Continuous usage while tool parsing buffers output
+
+After installing the pinned vLLM and applying `patches/series`, run:
+
+```bash
+CUDA_VISIBLE_DEVICES= venv/bin/python bench/test_async_mamba_kv_sizing.py
+CUDA_VISIBLE_DEVICES= venv/bin/python bench/test_kv_cache_seat_budget.py
+```
+
+These CPU checks cover async state reservations, speculative/checkpoint blocks,
+grouped admission, null-block capacity, budget overrides and automatic fitting.
+A replay fixture checks all 99 allocator snapshots from a 163K-token prefill,
+including its 219-block peak. The residency-log fixtures retain the older boot
+metrics while checking the corrected conservative async estimates. No model
+or GPU is needed. The Docker build runs both suites after applying the patches.
+CUDA_VISIBLE_DEVICES= venv/bin/python bench/test_continuous_stream_usage.py
+This uses Qwen's parser and the chat streaming generator with synthetic engine
+outputs. It checks continuous counts during a buffered array argument, hidden
+reasoning, final-only usage and no-usage streams. No model or GPU is needed.
+The Docker build runs the same regression after applying the patches.
+
+# drafter/ — self-distillation data, calibrated int4 requant, MTP fine-tuning, DFlash2 requant
+
+Tooling used to build the single-user "fast" variant of the model
+(`models/Qwen3.8-27B-W4A16-AutoRound-fast`, prebuilt on the Hub as
+`syvai/qwen3.8-27b-3090-fast-variant`; `prepare/fetch_fast_variant.py` assembles it). It also
+contains a complete MTP-head fine-tuning pipeline that, honestly, did **not** move the
+needle — kept because the negative result is informative and the same data feeds the
+things that did work.
+
+Everything here runs on the 3090 in the serving venv; ~6 h of GPU time end to end.
+
+`gen_data.py` resumes complete records in `data/gen.jsonl`. It removes an interrupted
+final record before appending and adds a missing final newline to complete records;
+corruption earlier in the file stops the run instead of being silently skipped.
+The stdlib-only recovery helper is `generation_state.py`.
+A nonblocking OS lock on `data/gen.jsonl.lock` excludes a second generator before
+resume repair or model loading, and stays held through all writes. The sidecar
+file remains, but a process exit releases its lock automatically. Do not delete
+the sidecar while a generator is running.
+
+## What actually mattered (in order)
+
+1. **The draft-head vocabulary.** The MTP drafter scores a 40,960-row slice of `lm_head`
+   (`prepare/build_draft_vocab.py`); a token outside that slice can never be drafted, so every
+   such token is a guaranteed rejection *and* truncates the chain. The originally shipped id
+   list (counted over Danish web text, Wikipedia, Python, and 8.8M tokens of older outputs)
+   covered 92.1% of what the model actually generates — 83% on code. A list counted over
+   5.4M tokens of the model's own outputs (this pipeline, `gen_data.py`) covers 97.5%
+   (96% on code). Nothing else changed: 98.0 → 108.6 tok/s greedy, 90.0 → 107.4 at
+   default sampling. Coverage barely improves past 40k rows (49k: 98.2%; the model only
+   ever emits ~54k distinct tokens), and 49k measured no faster.
+2. **GPTQ-calibrated int4 for lm_head and the MTP module.** Round-to-nearest int4 costs
+   +1.5% perplexity on lm_head (KL to the bf16 head 0.0068) and ~2% acceptance on the
+   MTP module. GPTQ with a Hessian from 300k captured hidden states (`gptq_lm_head.py`)
+   halves the lm_head KL (0.0029, +0.6% PPL, GSM8K 96.5% unchanged) and the MTP
+   Hessians from `train_mtp.py --dump-hessians` keep acceptance intact
+   (`requant_mtp_gptq.py`). Together: −1.8 ms per decode step (108.6 → 118.8 greedy).
+3. **Fine-tuning the MTP head: no.** Distilling the target's own distribution into the
+   drafter (KL over the draft vocab, unrolled depth-2 chains, 7M tokens, one epoch)
+   halves the KL and looks great on the naive metric — until you score only response
+   tokens against the *actual* next token, where top-1 agreement is unchanged
+   (0.685 → 0.685) and vLLM's acceptance moves within noise. Qwen's head is already at the
+   ceiling of a single-layer chain drafter for greedy top-1 on this data; the KL gains
+   were on prompt tokens and on positions whose true token is outside the draft vocab.
+   `train_mtp.py --eval-only` with `--depths 4` prints the greedy chain simulation that
+   matches vLLM (2.5 vs 2.6 tok/step for the original head).
+
+## Pipeline
+
+```bash
+V=venv/bin/python
+$V drafter/collect_prompts.py                 # 6.8k prompts: UltraChat, Magicoder, syvai/da-instruction,
+                                              #   syvai/reasoning-v1, skolegpt-instruct, GSM8K; 45% thinking on
+VLLM_MARLIN_INPUT_DTYPE=int8 VLLM_MARLIN_INT8_INCLUDE_RE=mlp $V drafter/gen_data.py   # 2.2 h, 5.4M output tokens
+$V drafter/capture.py                         # 1.7 h: hidden states of every token (74 GB memmap), in-process
+                                              #   vLLM hook on GPUModelRunner._model_forward
+# draft vocab from the model's own outputs -> prepare/draft_vocab_ids.json (the shipped list)
+$V drafter/train_mtp.py --out drafter/runs/e --eval-only 1 --draft-ids prepare/draft_vocab_ids.json \
+     --max-seqs 400 --val-frac 0.4 --depths 2 --dump-hessians drafter/runs/e/mtp_hessians.pt
+$V drafter/gptq_lm_head.py models/Qwen3.8-27B-W4A16-AutoRound models/tmp-lm4 --bits 4 --calib-rows 300000
+$V prepare/build_draft_vocab.py models/tmp-lm4 --ids prepare/draft_vocab_ids.json   # int4 draft head from the int4 lm_head
+$V drafter/requant_mtp_gptq.py models/tmp-lm4 models/Qwen3.8-27B-W4A16-AutoRound-fast drafter/runs/e/mtp_hessians.pt --bits 4
+```
+
+Optional fine-tune (for the record): `train_mtp.py --out runs/r --depths 2 --depth-weights 1,0.5
+--epochs 1 --lr 3e-5 --micro-tokens 4096` (~30 min/epoch at 4k tok/s), then `export_mtp.py`.
+The trainer reproduces vLLM's drafter to 1% (checked by replaying captured drafter calls
+with their KV history) so its numbers are trustworthy; use `--eval-only` first, response
+tokens only, true-token criterion.
+
+## DFlash2 drafter: W4A16 requantization
+
+`SPEC=dflash2` single-user mode uses [incoai/Qwen3.8-27B-DFlash2](https://huggingface.co/incoai/Qwen3.8-27B-DFlash2)
+(5 Qwen3-style layers, hidden 5120, 8 KV heads × 128, MLP 17408, an `fc` that projects the
+target's layer 5/19/33/47/61 hidden states, dynamic convs, a candidate selector; 1.92B
+params, 3.85 GB bf16). Read once per decode step that is ~5 ms on a 3090 and a 21k-token
+KV pool, so it ships requantized to W4A16 compressed-tensors (Marlin), 1.19 GB:
+[syvai/Qwen3.8-27B-DFlash2-W4A16](https://huggingface.co/syvai/Qwen3.8-27B-DFlash2-W4A16)
+(`prepare/fetch_dflash2.py`). To rebuild it:
+
+```bash
+V=venv/bin/python
+$V prepare/fetch_dflash2.py --bf16                               # models/Qwen3.8-27B-DFlash2 (3.85 GB)
+# 1. Hessians from the drafter's OWN inputs: vLLM in-process, eager (hooks), the bf16 drafter
+#    speculating on 400 prompts of data/gen.jsonl at model-default sampling, ~20 min;
+#    hooks on qkv_proj / o_proj / gate_up_proj (GPU fp32 Hessians), down_proj / fc (rows
+#    dumped to memmaps, reduced on the GPU in a re-exec'd process), plus the input of the
+#    fused context-KV precompute (the k/v rows are applied to those too). ~56 GB of scratch.
+DRAFT=models/Qwen3.8-27B-DFlash2 $V drafter/capture_dflash2.py --prompts 400 --max-tokens 384
+# 2. GPTQ int4 g128 for the 35 layer matrices + fc (k/v blend the context Hessian in),
+#    compressed-tensors export with the vLLM-prefix ignore list (~40 s, GPU must be free:
+#    the fc Hessian is 25600^2)
+$V drafter/quant_dflash2.py models/Qwen3.8-27B-DFlash2 models/Qwen3.8-27B-DFlash2-W4A16 drafter/runs/dflash2/hessians.pt
+```
+
+What the measurements said (8 realistic prompts × 1,024 tokens, fast-variant target):
+
+- int4 GPTQ keeps greedy acceptance (3.34-3.65 vs 3.54 tokens per step for bf16) and loses
+  ~5% at the model's default sampling (3.2 vs 3.4): noise in q hurts the acceptance
+  *probability*, not the argmax. Per step it reads 2.7 GB less (31.4 → 28 ms with the base
+  target, 26.5 ms with the fast variant), which is what turns DFlash2 from a wash into a
+  win on this card.
+- `fc` in bf16 instead of int4 (+0.26 GB): no acceptance difference (3.17 vs 3.17).
+- Blending the context-KV input distribution into the k/v Hessians (the k/v rows are also
+  applied to the context rows by the fused precompute, so on paper this is the right
+  calibration): **7% worse** greedy acceptance, 3.34 → 3.12 tokens per step, 126 → 118 tok/s.
+  It looked equal on a single default-sampling run, which is how it nearly shipped; greedy is
+  the reproducible signal here (four repeats land within 1.5 tok/s, step counts identical).
+  `quant_dflash2.py` still supports it — pass a Hessian file containing `ctx_kv` — but the
+  shipped drafter does not use it.
+- Applying the request's top-k/top-p to the selector walk's 16-candidate proposal (cached
+  truncated, so the verify stays lossless — the DFlash2 analogue of the MTP draft
+  truncation): +2%, inside the noise; on by default (`VLLM_DFLASH2_DRAFT_TOPK_TOPP=0` off).
+- Relative weight error of the int4 matrices: 0.147 mean (Frobenius), like the MTP module.
+
+## Notes that cost time
+
+- `capture.py` aligns hidden states by vLLM's request ids, which are `"<counter>-<uuid>"`
+  in 0.27, and by `input_batch.req_ids` order within a step.
+- Decode-time hidden states differ from prefill ones by ~0.9% (fp16 recurrent state);
+  training on either gives the same drafter.
+- Positions right after a rejection are systematically harder: vLLM's per-position
+  acceptance is measured there, so it sits ~5 points below a whole-sequence top-1 rate.
+  The chain simulation in `train_mtp.py --eval-only` accounts for that.
+- Greedy decoding with speculation is not bit-deterministic across drafter configs
+  (verify batches of 5 vs 1 token round differently), so 8 prompts × 1k tokens has a
+  ±3% spread on tokens/step. Repeat before believing a 2% difference. With DFlash2 the
+  greedy spread is wider (3.1-3.6 tokens per step across launch configs), default sampling
+  ±5% per run.
+- `capture_dflash2.py`: an in-process vLLM engine does not give its GPU memory back on
+  `del llm`; the Hessian reduction re-execs the process. The fused `qkv_proj.weight_shape`
+  parameter only holds the last-loaded shard's shape — derive

@@ -1,0 +1,6 @@
+upstream/
+.env
+*.env
+api_key.txt
+models/
+__pycache__/

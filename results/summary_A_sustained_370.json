@@ -1,0 +1,64 @@
+{
+  "block": "A_sustained_370",
+  "power_limitation_note": "Card observed SW-Power-Capped at approximately 187 W despite a 370 W configured limit. All 250 W blocks skipped by user decision; power limit unchanged.",
+  "start_temperature_c": 47.0,
+  "request_count": 105,
+  "warmup": false,
+  "telemetry": {
+    "median_power_w": 186.68,
+    "max_temperature_c": 59.0,
+    "median_temperature_c": 59.0,
+    "median_sm_mhz": 390.0,
+    "median_memory_mhz": 9501.0
+  },
+  "groups": {
+    "2c-sustained/off": {
+      "n": 105,
+      "decode_tok_s": {
+        "median": 48.73471265481063,
+        "min": 22.883245234895504,
+        "max": 109.38802265550142
+      },
+      "ttft_s": {
+        "median": 0.1498877959966194,
+        "min": 0.056296816997928545,
+        "max": 0.18762346600124147
+      }
+    }
+  },
+  "duration_s": 900.212000131607,
+  "windows": {
+    "first_2_minutes": {
+      "request_assignment": "request start within window",
+      "n": 15,
+      "decode_tok_s": {
+        "median": 50.62446860029135,
+        "min": 25.330413864199922,
+        "max": 109.38802265550142
+      },
+      "telemetry": {
+        "median_power_w": 187.2,
+        "max_temperature_c": 58.0,
+        "median_temperature_c": 57.0,
+        "median_sm_mhz": 420.0,
+        "median_memory_mhz": 9501.0
+      }
+    },
+    "last_2_minutes": {
+      "request_assignment": "request start within window",
+      "n": 14,
+      "decode_tok_s": {
+        "median": 46.45438577118361,
+        "min": 23.75220108365923,
+        "max": 90.11894645435412
+      },
+      "telemetry": {
+        "median_power_w": 186.75,
+        "max_temperature_c": 59.0,
+        "median_temperature_c": 59.0,
+        "median_sm_mhz": 390.0,
+        "median_memory_mhz": 9501.0
+      }
+    }
+  }
+}
