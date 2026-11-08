@@ -1,3 +1,7 @@
+[![I tried to unlock my RTX 3090, and tested HyperQwen instead](https://faysalaziz.com/api/media/file/hyperqwen-rtx3090-banner.png/)](https://faysalaziz.com/latest/unlock-rtx-3090-tested-hyperqwen-instead/)
+
+**Read the full story on my website:** [I tried to unlock my RTX 3090. I ended up testing HyperQwen instead.](https://faysalaziz.com/latest/unlock-rtx-3090-tested-hyperqwen-instead/)
+
 # HyperQwen on my RTX 3090: what actually happened
 
 I read the claim that [HyperQwen](https://github.com/syv-ai/HyperQwen) runs Qwen3.8-27B on a single RTX 3090 at around **127 tokens per second** for normal chat, and **381 tokens per second** when the answer copies text from the prompt. I wanted to see it for myself. So I set it up on a PC at home, ran my own tests, and wrote down everything — including the parts that went wrong.
